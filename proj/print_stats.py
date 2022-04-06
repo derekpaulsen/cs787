@@ -7,7 +7,7 @@ data = Path('./data')
 
 
 for f in data.glob('*.parquet'):
-    df = pd.read_parquet(f)
+    df = Optimizer.format_constraints(pd.read_parquet(f))
     print(f.name)
-    s = df.groupby(level=0).count()
+    s = df.groupby(level=0).count().max(axis=1).describe()
     print(s)

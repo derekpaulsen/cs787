@@ -1,20 +1,12 @@
-import pulp
-from utils import get_index_name, read_table, Timer, get_logger, init_spark, invoke_task
-from pyspark import SparkContext
-import operator
-import multiprocessing
-import pyspark.sql.functions as F
-from joblib import delayed
-
-
 import numpy as np
-from tqdm import tqdm
-from es.query_generator import QuerySpec
 import pandas as pd
-from copy import deepcopy
 import sys
 import torch
+from optimizer import Optimizer
 from torch import nn
+from utils import get_logger, Timer
+
+
 sys.path.append('.')
 pd.set_option('display.width', 150)
 
@@ -54,26 +46,35 @@ class BoostModel(nn.Module):
 
 
 
-class TorchOptimizer:
+class TorchOptimizer(Optimizer):
 
-    def __init__(self, rounds=50, round_duration=10, topk=50, restarts=10):
-        self._topk = topk
+    def __init__(self, iters=50, step_interval=10, restarts=10):
         self._restarts = restarts
-        self._rounds = rounds
+        self._iters = iters
         # number iterations per round (gradient updates)
-        self._round_duration = round_duration
-        self.results_ = {
-                'topk' : topk, 
-                'rounds' : rounds, 
-                'round_duration' : round_duration,
-                'total_grad_updates' : rounds * round_duration,
+        self._step_interval = step_interval
+        self._results = {
+                'iters' : iters, 
+                'step_interval' : step_interval,
+                'total_grad_updates' : iters * step_interval,
                 'restarts' : restarts
         }
     
-    
+    @property
+    def results(self):
+        return self._results
 
     def optimize(self, constraints):
-        pass
+        timer = Timer()
+        cands = [self._optimize(constraints) for i in range(self._restarts)]
+
+        self._results['opt_time'] = timer.get_interval()
+        # sort by the number of violated constraints
+        cands.sort(k=lambda x : x[1])
+        weights = cands[0][0]
+        self._results.update(Optimizer.create_results(constraints, weights, 'torch'))
+
+        return weights
 
 
     def _optimize(self, constraints):
@@ -85,24 +86,36 @@ class TorchOptimizer:
         
         X = torch.Tensor(constraints.values)
         label = -torch.ones(len(constraints), dtype=torch.float32)
+
+        niter = self._iters 
+
+        weights = [None] * niter
+        cvs = np.zeros(niter, dtype=np.int32)
+
+        for i in range(niter):
+            optimizer.zero_grad()
+
+            pred = model(X)
+            loss = loss_fn(pred, label)
+            loss.backward()
+
+            optimizer.step()
+
+            if i % self._step_interval == 0:
+                lr_decay.step()
+                p = torch.sum(pred).cpu().detach().numpy()
+                cv = torch.count_nonzero(pred > -1.0).cpu().detach().numpy()
+                log.info(f'epoch {i} : sum = {p}, total > 0 = {cv}')
+                weights[i] = model.weights
+                cvs[i] = cv
         
-        for i in range(self._rounds):
-            for j in range(self._round_duration):
-                optimizer.zero_grad()
-
-                pred = model(X)
-                loss = loss_fn(pred, label)
-                loss.backward()
-
-                optimizer.step()
-            
-            lr_decay.step()
-            p = torch.sum(pred).cpu().detach().numpy()
-            cv = torch.count_nonzero(pred > 0).cpu().detach().numpy()
-            log.info(f'epoch {i} : sum = {p}, total > 0 = {cv}')
+        best_idx = np.argmin(cvs)
 
         boost_map = pd.Series(
-                model.weights,
+                np.maximum(weights[best_idx], 0.0),
                 index=constraints.columns
         )
-        return boost_map
+        boost_map = boost_map[boost_map.gt(0)]
+        boost_map /= boost_map.min()
+
+        return boost_map, cvs[best_idx]

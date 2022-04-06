@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
+import numpy as np
 import pandas as pd
 
 
@@ -13,11 +14,16 @@ class Optimizer(ABC):
         pass
     
     @staticmethod
-    def create_results(constraints, weights):
-
-        satisfied = constraints.mul(weights).sub(1.0).le(0.0)
-
-
+    def create_results(constraints, weights, method_name):
+        violated = constraints.mul(weights).sum(axis=1).sub(1.0).gt(0.0)
+        hist = violated.groupby(level=0).sum().value_counts()
+        
+        return {
+                'method_name' : method_name,
+                'total_violated' : violated.sum(),
+                'hist' : hist.to_dict(),
+                'max_violated' : np.max(hist.index.values)
+        }
 
     @staticmethod
     def format_constraints(constraints):
