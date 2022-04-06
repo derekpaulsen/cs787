@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 from torch_optimizer import TorchOptimizer
+from linprog_optimizer import LinProgOptimizer
 from optimizer import Optimizer
 from pprint import pformat 
 
@@ -20,6 +21,8 @@ argp.add_argument('--out_file', default='out.json')
 def get_optimizer(t):
     if t == 'torch':
         return TorchOptimizer()
+    elif t == 'MILP':
+        return LinProgOptimizer(False)
     else:
         raise ValueError(t)
 
