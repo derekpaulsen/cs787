@@ -6,6 +6,10 @@ from torch_optimizer import TorchOptimizer
 from linprog_optimizer import LinProgOptimizer
 from optimizer import Optimizer
 from pprint import pformat 
+from utils import get_logger
+
+
+log = get_logger(__name__)
 
 DATA_DIR = Path('./data')
 datasets = list(DATA_DIR.glob('*.parquet'))
@@ -14,7 +18,7 @@ argp = ArgumentParser()
 
 argp.add_argument('--method', required=True, choices=['torch', 'MILP', 'LP'])
 argp.add_argument('--k', required=False, default=50, type=int)
-argp.add_argument('--out_file', default='out.json')
+argp.add_argument('--out', default='out.json')
 
 
 
@@ -27,7 +31,8 @@ def get_optimizer(t):
         raise ValueError(t)
 
 def run(opt, f, k):
-    const = Optimizer.format_constraints(f)
+    log.info(f'running {f}')
+    const = Optimizer.read_constraints(f)
     const = Optimizer.truncate_topk(const, k)
     w = opt.optimize(const)
 
@@ -35,7 +40,7 @@ def run(opt, f, k):
     res['dataset'] = f.stem
     res['dataset_path'] = str(f.absolute())
     res['time_ran'] = str(datetime.now())
-    print(pformat(res))
+    log.info(f'\n{pformat(res)}')
 
     return res
 
@@ -48,7 +53,7 @@ def main(args):
     with open(args.out, 'a') as ofs:
         for ds in datasets:
             res = run(opt, ds, args.k)
-            ofs.write(res.json.dumps(res)) 
+            ofs.write(json.dumps(res)) 
             ofs.write('\n')
 
 

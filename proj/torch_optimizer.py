@@ -48,7 +48,7 @@ class BoostModel(nn.Module):
 
 class TorchOptimizer(Optimizer):
 
-    def __init__(self, iters=50, step_interval=10, restarts=10):
+    def __init__(self, iters=500, step_interval=10, restarts=10):
         self._restarts = restarts
         self._iters = iters
         # number iterations per round (gradient updates)
@@ -56,7 +56,7 @@ class TorchOptimizer(Optimizer):
         self._results = {
                 'iters' : iters, 
                 'step_interval' : step_interval,
-                'total_grad_updates' : iters * step_interval,
+                'total_grad_updates' : iters,
                 'restarts' : restarts
         }
     
@@ -70,7 +70,7 @@ class TorchOptimizer(Optimizer):
 
         self._results['opt_time'] = timer.get_interval()
         # sort by the number of violated constraints
-        cands.sort(k=lambda x : x[1])
+        cands.sort(key=lambda x : x[1])
         weights = cands[0][0]
         self._results.update(Optimizer.create_results(constraints, weights, 'torch'))
 
@@ -87,27 +87,26 @@ class TorchOptimizer(Optimizer):
         X = torch.Tensor(constraints.values)
         label = -torch.ones(len(constraints), dtype=torch.float32)
 
-        niter = self._iters 
+        niter = self._iters  // self._step_interval
 
         weights = [None] * niter
         cvs = np.zeros(niter, dtype=np.int32)
-
         for i in range(niter):
-            optimizer.zero_grad()
+            for j in range(self._step_interval):
+                optimizer.zero_grad()
 
-            pred = model(X)
-            loss = loss_fn(pred, label)
-            loss.backward()
+                pred = model(X)
+                loss = loss_fn(pred, label)
+                loss.backward()
 
-            optimizer.step()
+                optimizer.step()
 
-            if i % self._step_interval == 0:
-                lr_decay.step()
-                p = torch.sum(pred).cpu().detach().numpy()
-                cv = torch.count_nonzero(pred > -1.0).cpu().detach().numpy()
-                log.info(f'epoch {i} : sum = {p}, total > 0 = {cv}')
-                weights[i] = model.weights
-                cvs[i] = cv
+            lr_decay.step()
+            p = torch.sum(pred).cpu().detach().numpy()
+            cv = torch.count_nonzero(pred > -1.0).cpu().detach().numpy()
+            log.debug(f'epoch {i} : sum = {p}, total > 0 = {cv}')
+            weights[i] = model.weights
+            cvs[i] = cv
         
         best_idx = np.argmin(cvs)
 

@@ -6,6 +6,8 @@ logging.basicConfig(
         stream=sys.stderr,
         format='[%(filename)s:%(lineno)s - %(funcName)s() ] %(asctime)-15s : %(message)s',
 )
+
+log_level = logging.INFO
 logger = logging.getLogger(__name__)
 
 class Timer:
@@ -27,7 +29,8 @@ class Timer:
         self.start_time = time.time()
 
 
-def get_logger(name, level=logging.DEBUG):
+def get_logger(name, level=None):
+    level = level if level is not None else log_level
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

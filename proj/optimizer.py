@@ -10,7 +10,7 @@ class Optimizer(ABC):
         pass
 
     @abstractmethod
-    def optimze(self, constraints):
+    def optimize(self, constraints):
         pass
     
     @staticmethod
@@ -20,13 +20,14 @@ class Optimizer(ABC):
         
         return {
                 'method_name' : method_name,
-                'total_violated' : violated.sum(),
+                'total_violated' : int(violated.sum()),
                 'hist' : hist.to_dict(),
-                'max_violated' : np.max(hist.index.values)
+                'max_violated' : int(np.max(hist.index.values))
         }
 
     @staticmethod
-    def format_constraints(constraints):
+    def read_constraints(file):
+        constraints = pd.read_parquet(file)
         # begins as (id2, matching tuple, id1)
         constraints.index = pd.MultiIndex.from_tuples(list(map(eval, constraints.index)))
         constraints.columns = pd.MultiIndex.from_tuples(list(map(eval, constraints.columns)))
@@ -48,6 +49,6 @@ class Optimizer(ABC):
 
     @staticmethod
     def truncate_topk(constraints, k):
-        return constraints.grouby(level=0)\
+        return constraints.groupby(level=0)\
                 .apply(lambda x : Optimizer._truncate_topk(x, k))
     
