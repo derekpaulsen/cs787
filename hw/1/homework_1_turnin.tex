@@ -1,0 +1,492 @@
+\documentclass[a4paper]{article}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{paralist}
+\usepackage{epstopdf}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyvrb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{float}
+\usepackage{paralist}
+\usepackage[svgname]{xcolor}
+\usepackage{enumerate}
+\usepackage{array}
+\usepackage{times}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{comment}
+\usepackage{environ}
+\usepackage{times}
+\usepackage{textcomp}
+\usepackage{caption}
+\usepackage[square,numbers]{natbib}
+
+
+
+\urlstyle{rm}
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+
+% TO SHOW SOLUTIONS, include following (else comment out):
+\newenvironment{soln}{
+    \leavevmode\color{blue}\ignorespaces
+}{}
+
+
+\hypersetup{
+%    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+\geometry{
+  top=1in,            % <-- you want to adjust this
+  inner=1in,
+  outer=1in,
+  bottom=1in,
+  headheight=3em,       % <-- and this
+  headsep=2em,          % <-- and this
+  footskip=3em,
+}
+
+
+\title{Assignment 1} % Title
+\author{
+Derek Paulsen \\
+} 
+
+\date{}
+
+
+
+\newcommand{\ind}[1]{\mathds{1}[#1]}
+\def \eps{\epsilon}
+\begin{document}
+\maketitle 
+
+\section{Problem 1}
+\subsection{Part A}
+In order to describe a single hash function we need to store three numbers $a,b$ and $p$, where,
+$p > |U|, 1 \geq a < p, 0 \geq b < p$, therefore we need to at most $\log_2(|U|)$ bits to store 
+each number. Hence a single hash function requires $O(\log_2(|U|))$ bits. We need $n+1$ hash functions 
+to describe the two level hashing hence we need $O(n \log_2(|U|))$ to describe the perfect two level 
+hashing function.
+
+
+\subsection{Part B}
+Let the items that we are trying to hash be $S = (s_1,...,s_n)$. (the items of $S$ are inserted in order).
+Suppose we have a single array of size $O(n^{1.5})$. 
+Let $X_i = \ind{s_i \text{  collides with another element in the array}}$, we wish to compute $E[X_i]$.
+Let $h$ be a random hash function $h(x) \rightarrow \{1,...,n^{1.5}\}$
+
+\begin{align*}
+	E[X_i] = E[\sum_{j=1}^{i-1} \ind{h(s_i) = h(s_j)}]\\
+	E[X_i] = \sum_{j=1}^{i-1} E[\ind{h(s_i) = h(s_j)}]\\
+	E[X_i] = \sum_{j=1}^{i-1} Pr[h(s_i) = h(s_j)]\\
+	E[X_i] = \sum_{j=1}^{i-1} 1/n^{1.5}\\
+	E[X_i] =  (i-1)/n^{1.5}\\
+\end{align*}
+
+suppose we have a two arrays of size $O(n^{1.5})$. The probability of a collision in this both arrays is,
+Let $Y_i = \ind{s_i \text{  collides with another element in both arrays}}$, we wish to compute $E[Y_i]$.
+We note that each array has at most $i-1$ elements when inserting the $i$th element, hence we have 
+\begin{align*}
+	E[Y_i] \leq E[X_i]^2\\
+	E[Y_i] \leq (i-1)^2/n^{3}\\
+\end{align*}
+
+Let $Y = \sum_{i=1}^{n} = Y_i$, the number of collisions. We want $E[Y]$
+\begin{align*}
+	E[Y_i] &= E[\sum_{i=1}^{n} Y_i]\\
+	E[Y_i] &= \sum_{i=1}^{n} E[Y_i]\\
+	E[Y_i] &\leq \sum_{i=1}^{n} \frac{(i-1)^2}{n^3}\\
+	E[Y_i] &\leq \frac{n(n-1)(2n-1)}{6n^3}\\
+	E[Y_i] &\leq \frac{n^3 - 3n^2 + n}{6n^3}\\
+	E[Y_i] &= O(1)\\
+\end{align*}
+
+Therefore the expected number of collisions is $O(1)$
+\subsection{Part C}
+
+We note that our work above only assumes that $x,y \in U, x\neq y, Pr[h(x) = h(y)] = 1/n^{1.5}$, which is 
+satisfied by a 2-universal hash function by definition. Therefore the expected number of collisions
+is still $O(1)$ when the hash functions 2-universal hash functions.
+\subsection{Part D}
+
+The algorithm procedes as follows,
+
+\begin{enumerate}
+		\item Hash all elements $s\in S$ into the first array with collisions
+		\item remove elements from the first array such that each bucket has at most one element, let $C$ be the set of elements that were removed
+		\item hash the elements $C$ into the second array 
+		\item repeat step 3 until a perfect hashing has been found for the elements in $C$
+\end{enumerate}
+
+
+Let $X = \sum_{i=1}^n X_i$, we wish to compute $E[X]$ the number of expected collisions.
+\begin{align*}
+	E[X] &= E[\sum_{i=1}^n X_i]\\
+	E[X] &= \sum_{i=1}^n E[X_i]\\
+	E[X] &= \sum_{i=1}^n (i-1)/n^{1.5}\\
+	E[X] &= \sum_{i=1}^n \frac{(n-1)(n-2)}{n^{1.5}}\\
+	E[X] &= \frac{n^2 - 3n + 2}{n^{1.5}}\\
+	E[X] &\leq \sqrt{n}
+\end{align*}
+
+
+We now compute the probability of collision in step 3,
+using the union bound we get
+\begin{align*}
+	Pr[collision] &\leq \sum_{i=1}^{\sqrt{n}} X_i\\
+	Pr[collision] &\leq  \frac{(\sqrt{n}-1)(\sqrt{n}-2)}{n^{1.5}}\\
+	Pr[collision] &\leq \frac{n - 3\sqrt{n} + 2}{n^{1.5}}\\
+	Pr[collision] &\leq 1/\sqrt{n}
+\end{align*}
+
+Therefore in expectation we will need try one hash function in step 3 to get a perfect hashing for $C$.
+
+Step 1 requires $n$ hash functions evaluations, and step 3 requires $\sqrt{n}$ hash functions evaluations in expectation, hence the 
+number of hash function evaluations to get a perfect hashing with the above algorithm is 
+$O(n)$.
+
+
+
+
+
+\subsection{Part E}
+% TODO
+
+\section{Problem 2}
+\subsection{Part A}
+
+There are $n$ choose $k$ ways to have $k$ balls in the first bucket and then $(n-1)^{n-k}$ ways to place the rest of the balls. There are $n^n$ total 
+ways to place all the balls, hence we want,
+
+\begin{align*}
+	\Pr[\text{bin 1 has $k$ balls}] \geq 1/\sqrt{n}\\
+	\frac{{n \choose k}(n-1)^{n-k}}{n^n} \geq 1/\sqrt{n}\\
+\end{align*}
+Using the fact that $(\frac{n}{k})^ k \leq {n \choose k}$
+
+\begin{align*}
+	\frac{(\frac{n}{k})^k(n-1)^{n-k}}{n^n} \geq 1/\sqrt{n}\\
+	\frac{1}{k^k} \geq \frac{(\frac{n}{n-1})^{n-k}}{\sqrt n}\\
+\end{align*}
+
+using this bound we get $(1 + \frac{1}{n-1})^{n} \leq e \implies (1 + \frac{1}{n-1})^{n-k} \leq e$
+\begin{align*}
+	\frac{1}{k^k} \geq \frac{e}{\sqrt n}\\
+	k^k \leq \frac{\sqrt n}{e}\\
+\end{align*}
+
+We now set $k = \log(n) / e\log\log(n)$,
+\begin{align*}
+	(\log n / e\log\log n)^k \leq \frac{\sqrt n}{e}\\
+	k(\log\log n  - \log\log\log n - 1) \leq .5 \log n - 1\\
+	\frac{1}{e}\log n - k(\log\log\log n + 1) \leq .5 \log n - 1\\
+	True
+\end{align*}
+
+Therefore we have that the probability of bin 1 having $k$ balls is greater than or equal to $1/\sqrt{n}$
+
+
+\subsection{Part B}
+
+
+I don't have a formal proof for this, however here is the idea,
+Let $a_i$ be the event that bin $i$ has $k$ balls.
+Let $b_i$ be the event that at least one bin $i-1,...,1$ has $k$ balls.
+We then have the probability that bin $i$ has $k$ given that bin $i-1,...,1$ dont have $k$ is, 
+
+\begin{align*}
+	Pr(a_i | \bar b_{i-1}) &= \frac{Pr(\bar b_{i-1} | a_i)Pr(a_i)}{1 - Pr (b_{i-1})}\\
+\end{align*}
+
+We then note that $Pr(b_i)$ is strictly increasing while $Pr(a_i)$ is constant, 
+therefore, $Pr(a_i | \bar b_{i-1})$ is strictly increasing.
+
+We then have the probability that none of the bins have $k$ is,
+
+\begin{align*}
+	Pr(\bigcap_{i=1}^n \bar a_i ) &= \prod_{i=1}^n Pr(\bar a_i | \bigcap_{j=1}^{i-1} \bar a_j)\\
+	Pr(\bigcap_{i=1}^n \bar a_i ) &= \prod_{i=1}^n 1 - Pr(a_i | \bigcap_{j=1}^{i-1} \bar a_j)\\
+	Pr(\bigcap_{i=1}^n \bar a_i ) &= \prod_{i=1}^n 1 - Pr(a_i | \bar b_{i-1})\\
+	Pr(\bigcap_{i=1}^n \bar a_i ) &\leq \prod_{i=1}^n 1 - 1/\sqrt{n}\\
+	Pr(\bigcap_{i=1}^n \bar a_i ) &\leq (1 - 1/\sqrt{n})^n\\
+	Pr(\bigcap_{i=1}^n \bar a_i ) &\leq (1 - 1/\sqrt{n})^n\\
+	Pr(\bigcap_{i=1}^n \bar a_i ) &\leq ((1 - 1/\sqrt{n})^{\sqrt{n}})^{\sqrt{n}}\\
+	Pr(\bigcap_{i=1}^n \bar a_i ) &\leq 1/e^{\sqrt{n}}\\
+\end{align*}
+We then use that fact that $e^{\sqrt{n}} \geq n$ 
+\begin{align*}
+	Pr(\bigcap_{i=1}^n \bar a_i ) &\leq 1/n\\
+\end{align*}
+
+
+Therefore we have that the probability of some bin having $k$ is greater than or equal to $1 - 1/n$.
+
+
+
+
+
+
+\section{Problem 3}
+
+Suppose that we have the a sample of $t$ numbers from the unordered list. Let $p = k/n$, i.e. the 
+percentile of the rank that we are trying to estimate. Our estimator is the number with 
+rank $tp$ in our sample.
+
+Proof.
+
+We begin by noting that our esimator is incorrect if and only if we have $tp$ elements which are 
+less than $(1-\eps)k$ or we have $t(1-p)$ elements which are greater $(1+\eps)k$. 
+Let $S = \{s_i,...,s_t\}$ be a random sample with replacement of size $t$ from $x_1,...x_n$.
+Let $L_i = \ind{rank(s_i) < (1-\eps)k}$ and $L = \sum_{i=1}^{t} L_i$. We then compute the expectation,
+
+\begin{align*}
+	E[L] &= E[\sum_{i=1}^{t} L_i] \\
+			&= \sum_{i=1}^{t} E[L_i]\\
+			&= \sum_{i=1}^{t} (1-\eps)p\\
+			&=  t(1-\eps)p\\
+\end{align*}
+
+Additionally, let 
+$U_i = \ind{rank(s_i) > (1+\eps)k}$ and $U = \sum_{i=1}^{t} U_i$. We then compute the expectation,
+
+\begin{align*}
+	E[U] &= E[\sum_{i=1}^{t} U_i] \\
+			&= \sum_{i=1}^{t} E[U_i]\\
+			&= \sum_{i=1}^{t} (1-(1+\eps)p)\\
+			&=  t(1-(1+\eps)p)\\
+\end{align*}
+
+
+
+We then have\\
+$$Pr[(1-\eps)k > rank(k) \lor rank(k) < (1=\eps)k] \leq Pr[L \geq tp] +  Pr[U \geq t(1-p)] $$
+
+We now compute bounds on the probabilities. We note that $(1 + \frac{\eps}{1-\eps})t(1-\eps)p = tp$
+
+\begin{align*}
+	Pr[L \geq (1 + \frac{\eps}{1-\eps})t(1-\eps)p] &\leq e^{ \frac{-	(\frac{\eps}{1-\eps})^2t(1-\eps)p}{2 + \frac{\eps}{1-\eps}}}\\
+\end{align*}
+We then set this to $\delta$
+
+\begin{align*}
+	\delta &= e^{ \frac{-	(\frac{\eps}{1-\eps})^2t(1-\eps)p}{2 + \frac{\eps}{1-\eps}}}\\
+	log(1/\delta) &= t\frac{(\frac{\eps}{1-\eps})^2(1-\eps)p}{2 + \frac{\eps}{1-\eps}}\\
+	 \frac{log(1/\delta)(2 + \frac{\eps}{1-\eps})}{(\frac{\eps}{1-\eps})^2(1-\eps)p}&= t\\
+	 \frac{log(1/\delta)(2 + \frac{\eps}{1-\eps})(1-\eps)}{\eps^2p}&= t\\
+	 \frac{log(1/\delta)(2(1-\eps) + \eps)  }{\eps^2p}&= t\\
+	 \frac{log(1/\delta)(2-\eps)  }{\eps^2p}&= t\\
+\end{align*}
+
+
+we then do the same for the other element,
+We now compute bounds on the probabilities. We note that $(1 + \frac{\eps p}{1-(1+\eps)p})t(1 - (1+\eps)p) = t(1-p)$
+
+\begin{align*}
+	Pr[U \geq (1 + \frac{\eps p}{1-(1+\eps)p})t(1 - (1+\eps)p)] &\leq e^{ \frac{-	(\frac{\eps p}{1-(1+\eps)p})^2t(1-(1+\eps)p)}{2 + \frac{\eps p}{1-(1+\eps)p}}}\\
+\end{align*}
+
+We then set this to $\delta$
+
+\begin{align*}
+	\delta &= e^{ \frac{-	(\frac{\eps p}{1-(1+\eps)p})^2t(1-(1+\eps)p)}{2 + (\frac{\eps p}{1-(1+\eps)p})}}\\
+	log(1/\delta) &=  \frac{	(\frac{\eps p}{1-(1+\eps)p})^2t(1-(1+\eps)p)}{2 + (\frac{\eps p}{1-(1+\eps)p})}\\
+	\frac{log(1/\delta) (2 + \frac{\eps p}{1-(1+\eps)p})}{	(\frac{\eps p}{1-(1+\eps)p})^2(1-(1+\eps)p)} &= t  \\
+	\frac{log(1/\delta) (2 + \frac{\eps p}{1-(1+\eps)p})(1-(1+\eps)p)}{	\eps^2 p^2} &= t\\
+	\frac{log(1/\delta) (2 - 2p - \eps p)}{	\eps^2 p^2} &= t\\
+\end{align*}
+
+
+
+Now combine the two probabilities, 
+
+\begin{align*}
+	t &= \frac{log(1/\delta) (2 - 2p - \eps p)}{	\eps^2 p^2} + \frac{log(1/\delta)(2-\eps)}{\eps^2p}\\
+	 t &= log(1/\delta) (\frac{ (2 - 2p - \eps p)}{	\eps^2 p^2} + \frac{(2-\eps)}{\eps^2p})\\
+	 t &=  \frac{ log(1/\delta)2(1 - \eps p ) }{	\eps^2 p^2}\\
+	 t &=  \frac{ log(1/\delta)2(1 - \eps \frac{k}{n} )n^2 }{	\eps^2 k^2}\\
+	 t &=  \frac{ log(1/\delta)2(n^2 - \eps nk ) }{	\eps^2 k^2}\\
+\end{align*}
+
+Therefore we need $ O(\frac{ log(1/\delta)2(n^2 - \eps nk ) }{	\eps^2 k^2})$ queries to distingush
+
+\section{Problem 4}
+\subsection{Part A}
+Suppose that we we randomly create a set $Q \subseteq \{1,...,n\}$ where each element has $1/k$ chance of 
+being included in the set. We first consider 
+$Pr[Q \cap S = \emptyset]$. Because of how we constructed the set, for each element $s \in S$, 
+$Pr[s \notin Q] = 1 - 1/k$, therefore $Pr[Q \cap S = \emptyset] = (1 - 1/k)^{ |S| }$. 
+Let $$X_i = \ind{Q \cap S = \emptyset} \text{  and  } X = \sum_{i=1}^{t} X_i  \text{  and  } p = (1-1/k) = \frac{k-1}{k}$$
+
+We note that,
+\begin{align*}
+	E[X] &= E[\sum_{i=1}^{t} X_i] \\
+			&= \sum_{i=1}^{t} E[X_i]\\
+			&= \sum_{i=1}^{t} (1 - 1/k)^{ |S| }\\
+	E[X]	&= t (1 - 1/k)^{ |S| }\\
+	E[X]	&= t p^{ |S| }\\
+\end{align*}
+
+Additionally,
+\begin{align*}
+	|S| \leq k &\implies E[X] \geq t p^{ k } \\
+	|S| \geq (1+\eps)k &\implies E[X] \leq t p^{ (1+\eps)k } 
+\end{align*}
+
+
+When $X \leq (1-\eps/2)E[X]$ we predict that $|S| \geq (1+\eps)k$. Suppose that $|S| \leq k$ 
+we know that the $\mu = E[X] \geq t p^{ k }$. Therefore, using the Chernoff bound,
+$$Pr[X \leq (1-\eps)\mu] \leq e^{-\frac{\eps^2\mu}{4(2 + \eps})}$$
+
+now if we set our probability of failure to be $\delta$,
+\begin{align*}
+	\delta &= e^{-\frac{\eps^2\mu}{4(2 + \eps)}}\\
+	log(\delta) &= -\frac{\eps^2\mu}{2 + \eps}\\
+	log(1/\delta) &= \frac{\eps^2\mu}{4(2 + \eps)}\\
+	\frac{log(1/\delta)4(2 + \eps)}{\eps^2} &= \mu\\
+	\frac{log(1/\delta)4(2 + \eps)}{\eps^2} &= tp^k\\
+\end{align*}
+
+note that for $1 \geq k, p^k = (\frac{k-1}{k})^k \leq 1$
+\begin{align*}
+	\frac{log(1/\delta)4(2 + \eps)}{\eps^2} &= t\\
+	O(\frac{log(1/\delta)}{\eps^2}) &= t\\
+\end{align*}
+
+Now assume that $|S| \geq (1+\eps)k$, 
+First note that 
+$$ (1 + ((1-\eps/2)p^{-k\eps} - 1))p^{(1+\eps)k} =  (1-\eps/2)p^k $$
+
+The probability of making an error is then,
+
+$$
+Pr[X \geq (1 + ((1-\eps/2)p^{-k\eps} - 1))\mu] \leq e^{\frac{((1-\eps/2)p^{-k\eps} - 1))^2 \mu}{2 + ((1-\eps/2)p^{-k\eps} - 1))}}
+$$
+
+We set $\mu = tp^{(1+\eps)k}$ since the closer the true $\mu$ is to the assumed $\mu = tp^k$ the more
+likely we are to make an error,
+setting this to $\delta$ we get 
+
+\begin{align*}
+	\delta &= e^{\frac{-((1-\eps/2)p^{-k\eps} - 1))^2 \mu}{2 + ((1-\eps/2)p^{-k\eps} - 1))}} \\
+	log(1/\delta) &= \frac{((1-\eps/2)p^{-k\eps} - 1))^2 \mu}{2 + ((1-\eps/2)p^{-k\eps} - 1))}\\
+	log(1/\delta)(2 + ((1-\eps/2)p^{-k\eps} - 1))) &= ((1-\eps/2)p^{-k\eps} - 1))^2 \mu\\
+	\frac{log(1/\delta)(2 + ((1-\eps/2)p^{-k\eps} - 1)))}{((1-\eps/2)p^{-k\eps} - 1))^2} &=  \mu\\
+	\frac{log(1/\delta)(2 + ((1-\eps/2)p^{-k\eps} - 1)))}{((1-\eps/2)p^{-k\eps} - 1))^2} &=  tp^{(1+\eps)k}\\
+	\frac{log(1/\delta)(2 + ((1-\eps/2)p^{-k\eps} - 1)))}{((1-\eps/2)p^{-k\eps} - 1))^2 p^{(1+\eps)k}} &=  t\\
+	O(\frac{log(1/\delta)}{\eps^2}) &= t\\
+\end{align*}
+
+Therefore, in order to make the probability of error $1-\delta$ we only need $t = O(\frac{log(1/\delta)}{\eps^2})$
+queries.
+
+
+\subsection{Part B}
+
+Let $F(k, k')$ be the estimator from part A, where the $F(k, k') = 0$ if the size of $S$ is predicted to 
+be less than or equal to $k$ and  $F(k, k') = 1$ if the size of $S$ is predicted to be greater than 
+or equal to $k'$ (eqivalent to $(1+\eps)k$). Our algorithm is as follows,
+
+\begin{enumerate}
+	\item $l \gets 1$
+	\item $u \gets n$
+	\item while $l > (1+\eps)u$
+	\begin{enumerate}
+		\item // The quartiles for the current range
+		\item $q_1 \gets  l + (u - l) / 4$, $q_2 \gets  l + (u - l) / 2$, $q_3 \gets  l + 3(u - l) / 4$
+		\item If $F(q_1, q_2) \neq F(q_2, q_3)$ then $l \gets q_1, u \gets q_3$ // Take the second and third quartile
+		\item If $F(q_1, q_2) = F(q_2, q_3) = 1$ then $l \gets q_2, u \gets u$ // Take the bottom half
+		\item If $F(q_1, q_2) = F(q_2, q_3) = 0$ then $l \gets l, u \gets q_2$ // Take the top half
+	\end{enumerate}
+	\item Return $l$
+\end{enumerate}
+
+
+\subsubsection{Probability}
+
+Assuming $l \leq |S| \leq u$ we have 4 cases, one for each quartile.
+If $|S|$ is in the first quartile, then with probability $(1-\delta)^2$ we have $F(q_1, q_2) = F(q_2, q_3) = 0$,
+in which case $|S|$ stays in the range. Similar reasoning can be applied if $|S|$ is in the fourth quartile.
+If $|S|$ is in the second quartile, then $F(q_2, q_3)$ is reliable but $F(q_1, q_2)$ is not. However, as long as 
+$F(q_2, q_3)$ is correct, $|S|$ stays in the range. Symmetric reasoning is applied for when $|S|$ is in the 
+third quartile. Therefore the probability of success for a given iteration is at least $(1-\delta)^2$. 
+
+In order to succeed we must have every iteration succeed, hence the probability that the algorithm succeeds is
+at least $(1-\delta)^{2 \log_2 n}$.
+
+
+\subsubsection{Runtime}
+
+We note that the size of the interval we consider halves, therefore, for any $\eps$ we perform at most $O(\log n)$ iterations.
+Each iteration takes a constant number of estimator evaluations therefore the number of $O(\log n)$ number of queries. We want our
+probability of success to be at least $2/3$ hence we get,
+
+\begin{align*}
+	(1-\delta)^{2 \log n} &\geq 2/3\\
+	\log (1-\delta) (2 \log n) &\geq \log (2/3)\\
+	\log (1-\delta)  &\geq \frac{\log (2/3)}{(2 \log n)}\\
+	1-\delta  &\geq (2/3)^{1/2 \log n}\\
+	\delta  &\leq 1-(2/3)^{1/2 \log n}\\
+	\log(1/\delta)  &\geq -\log(1-(2/3)^{1/2 \log n})\\
+	\log(1/\delta)  &= O(\log \log x)
+\end{align*}
+
+Since the number of queries per estimator evaluation is $O(\log(1/\delta)/\eps^2)$  the number of queries
+per iteration is $O(\log \log x)$. Therefore our runtime complexity is $O(\log n \log \log n)$.
+
+
+\subsection{Part C}
+
+We can randomly sample a unique element from $S$ as follows,
+
+\begin{itemize}
+	\item $Q =\{1,...,n\}$ 
+	\item While $|Q| > 1$
+	\begin{itemize}
+			\item $Q' =$ random subset of $Q$ containing each element with probability $1/2$
+			\item While $Q' \cap S = \emptyset$
+			\begin{itemize}
+				\item $Q' =$ random subset of $Q$ containing each element with probability $1/2$
+			\end{itemize}
+			\item $Q = Q'$
+	\end{itemize}
+	\item Return the single element in $Q$
+\end{itemize}
+
+
+\subsubsection{Runtime}
+
+First we note that $Q$ always contains at least one element in $S$. Because the way $Q'$ is constructed,
+$Pr[Q' \cap S = \emptyset] \leq 1/2$ at every step of the algorithm. Therefore we have that each iteration
+in the worst case (where $S$ only has one element) we expect two queries to be executed. We then note that 
+the size of $Q$ halves in expectation each iteration, therefore there are $O(\log_2 n)$ expected iterations
+required. Since the expected number of queries per iteration is constant, the runtime of the algorithm 
+is $O(\log_2 n)$
+
+\subsubsection{Sampling Randomness}
+
+
+Suppose our algorithm runs for $h$ steps before $|Q \cap S| = 1$  at which point the output
+of the algorithm is determined and with the single element. We note that 
+each element in each iteration has $1/2$ probability of being include in the next iteration, therefore 
+the probability of each element being in $Q$ after $h$ iterations is $1/2^h$. Since all elements have equal probability
+of being in the final set, the sample is uniformly random.
+
+
+
+
+%\bibliographystyle{abbrvnat}
+%\bibliography{references}
+\end{document}
