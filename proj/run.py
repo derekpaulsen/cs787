@@ -17,7 +17,7 @@ datasets = list(DATA_DIR.glob('*.parquet'))
 argp = ArgumentParser()
 
 argp.add_argument('--method', required=True, choices=['torch', 'MILP', 'LP'])
-argp.add_argument('--k', required=False, default=50, type=int)
+argp.add_argument('--k', required=False, default=25, type=int)
 argp.add_argument('--out', default='out.json')
 
 
@@ -25,6 +25,8 @@ argp.add_argument('--out', default='out.json')
 def get_optimizer(t):
     if t == 'torch':
         return TorchOptimizer()
+    elif t == 'LP':
+        return LinProgOptimizer(True)
     elif t == 'MILP':
         return LinProgOptimizer(False)
     else:

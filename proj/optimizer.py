@@ -17,12 +17,13 @@ class Optimizer(ABC):
     def create_results(constraints, weights, method_name):
         violated = constraints.mul(weights).sum(axis=1).sub(1.0).gt(0.0)
         hist = violated.groupby(level=0).sum().value_counts()
-        
+        weights.index = [str(x) for x in weights.index]
         return {
                 'method_name' : method_name,
                 'total_violated' : int(violated.sum()),
                 'hist' : hist.to_dict(),
-                'max_violated' : int(np.max(hist.index.values))
+                'max_violated' : int(np.max(hist.index.values)),
+                'boost_weights' : weights.to_dict()
         }
 
     @staticmethod
@@ -43,12 +44,17 @@ class Optimizer(ABC):
                     .sort_values()\
                     .tail(k)\
                     .index
-
+        
         return grp.loc[take]
 
 
     @staticmethod
     def truncate_topk(constraints, k):
-        return constraints.groupby(level=0)\
+        c = constraints.groupby(level=0)\
                 .apply(lambda x : Optimizer._truncate_topk(x, k))
+
+        if len(c.index.names) == 4:
+            c.index = c.index.droplevel(0)
+        return c
+
     

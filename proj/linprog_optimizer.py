@@ -16,10 +16,10 @@ class LinProgOptimizer(Optimizer):
     def __init__(self, relaxation):
         self._relaxed=relaxation
         # solver config
-        self._solver_name = 'PULP_CBC_CMD'
+        self._solver_name = 'GUROBI_CMD'
         self._solver_threads = multiprocessing.cpu_count() # use all threads on the solver
         # no timelimit currently
-        #self._solver_time_limit_secs = 600 # 10 mins
+        self._solver_time_limit_secs = 3600 # 60 mins
         self._solver_presolve = True 
 
         self._results = {
@@ -27,21 +27,24 @@ class LinProgOptimizer(Optimizer):
                 'relaxed' : self._relaxed,
         }
 
+    
+    @property
+    def results(self):
+        return self._results
 
     def get_solver(self):
         return pulp.get_solver(
                 self._solver_name,
                 threads=self._solver_threads,
-                presolve=self._solver_presolve
+                timeLimit=self._solver_time_limit_secs,
         )
-                #timeLimit=self._solver_time_limit_secs,
     
     def _solve_problem(self, problem):
         timer = Timer()
         problem.solve(self.get_solver())
         return timer.get_interval()
 
-    def  _opt_mip(self, constraints):
+    def  _opt(self, constraints, relaxed):
         # the variables corresponding to the boost values in the 
         # query spec, this is the the main optimization target
         boost_vars = pd.Series(data=[
@@ -49,10 +52,16 @@ class LinProgOptimizer(Optimizer):
             ],
             index=constraints.columns
         )
+        
+        # switch between strict binary and relaxed LP
+        if relaxed:
+            kwargs = {'lowBound' : 0.0, 'upBound' : 1.0}
+        else:
+            kwargs = {'cat' : pulp.const.LpBinary}
 
         # binary vars used to indicate that the constraint has been violated
         constraint_indicator_vars = pd.Series(data=[
-            pulp.LpVariable(f'y{i}_{j}_{k}', cat=pulp.const.LpBinary) for i,j,k in constraints.index
+            pulp.LpVariable(f'y{i}_{j}_{k}', **kwargs) for i,j,k in constraints.index
             ],
             index=constraints.index
         )
@@ -102,15 +111,16 @@ class LinProgOptimizer(Optimizer):
 
 
     def optimize(self, constraints):
-        if self._relaxed:
-            raise NotImplementedError()
-        else:
-            boost_map = self._opt_mip(constraints)
 
+        boost_map = self._opt(constraints, self._relaxed)
 
         boost_map = boost_map.dropna()
-        boost_map = boost_map.gt(0)
+        boost_map = boost_map[boost_map.gt(0)]
         boost_map /= boost_map.min()
+
+        method = 'LP' if self._relaxed else 'MILP'
+        self._results.update(Optimizer.create_results(constraints, boost_map, method))
+
         return boost_map
 
         
