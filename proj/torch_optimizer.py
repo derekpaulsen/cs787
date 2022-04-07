@@ -48,7 +48,7 @@ class BoostModel(nn.Module):
 
 class TorchOptimizer(Optimizer):
 
-    def __init__(self, iters=500, step_interval=10, restarts=10):
+    def __init__(self, iters=500, step_interval=10, restarts=100):
         self._restarts = restarts
         self._iters = iters
         # number iterations per round (gradient updates)
@@ -71,7 +71,7 @@ class TorchOptimizer(Optimizer):
         self._results['opt_time'] = timer.get_interval()
         # sort by the number of violated constraints
         cands.sort(key=lambda x : x[1])
-        weights = cands[0][0]
+        weights = self.post_process_boost_map(cands[0][0])
         self._results.update(Optimizer.create_results(constraints, weights, 'torch'))
 
         return weights

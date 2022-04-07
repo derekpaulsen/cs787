@@ -113,10 +113,7 @@ class LinProgOptimizer(Optimizer):
     def optimize(self, constraints):
 
         boost_map = self._opt(constraints, self._relaxed)
-
-        boost_map = boost_map.dropna()
-        boost_map = boost_map[boost_map.gt(0)]
-        boost_map /= boost_map.min()
+        boost_map = self.post_process_boost_map(boost_map)
 
         method = 'LP' if self._relaxed else 'MILP'
         self._results.update(Optimizer.create_results(constraints, boost_map, method))

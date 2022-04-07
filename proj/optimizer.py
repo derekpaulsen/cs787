@@ -57,4 +57,7 @@ class Optimizer(ABC):
             c.index = c.index.droplevel(0)
         return c
 
-    
+    @staticmethod
+    def post_process_boost_map(boost_map):
+        boost_map = boost_map.where(boost_map > 0).dropna()
+        return boost_map / boost_map.min()
