@@ -4,6 +4,8 @@ import pandas as pd
 
 
 class Optimizer(ABC):
+
+    TIMEOUT=2700 # 24hrs of cpu time
     
     @abstractproperty
     def results(self):

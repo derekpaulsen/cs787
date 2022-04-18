@@ -42,7 +42,7 @@ class LinProgOptimizer(Optimizer):
         self._solver_name = 'GUROBI_CMD'
         self._solver_threads = multiprocessing.cpu_count() # use all threads on the solver
         # no timelimit currently
-        self._solver_time_limit_secs = 100 
+        self._solver_time_limit_secs = Optimizer.TIMEOUT
         #self._solver_time_limit_secs = 3600 # 60 mins
         self._solver_presolve = True 
         self._log_file = mkstemp(prefix='gurobi.log.')[1]

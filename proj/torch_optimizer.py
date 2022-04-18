@@ -49,7 +49,7 @@ class BoostModel(nn.Module):
 class TorchOptimizer(Optimizer):
 
     def __init__(self, iters=500, step_interval=10, timeout=100):
-        self._timeout = timeout
+        self._timeout = Optimizer.TIMEOUT
         self._iters = iters
         # number iterations per round (gradient updates)
         self._step_interval = step_interval
