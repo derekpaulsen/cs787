@@ -24,7 +24,7 @@ class Optimizer(ABC):
                 'hist' : hist.to_dict(),
                 'max_violated' : int(np.max(hist.index.values)),
                 'boost_weights' : weights.to_dict(),
-                'time_series' : time_series.to_json(orient='records')
+                'time_series' : time_series.to_dict(orient='list')
         }
 
     @staticmethod
