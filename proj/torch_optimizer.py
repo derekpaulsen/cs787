@@ -76,7 +76,7 @@ class TorchOptimizer(Optimizer):
         self._results['opt_time'] = timer.get_interval()
         cands_df = pd.DataFrame(cands, columns=['weights', 'obj_val', 'time']).sort_values('time')
 
-        best_row = cands_df.sort_values(obj_val)\
+        best_row = cands_df.sort_values('obj_val')\
                         .iloc[0]
     
         boost_map = pd.Series(
@@ -89,7 +89,7 @@ class TorchOptimizer(Optimizer):
 
         time_series = cands_df[['time', 'obj_val']]
         # take the running best
-        time_series['obj_val'] = np.maximum.accumulate(time_series['obj_val'].values)
+        time_series['obj_val'] = np.minimum.accumulate(time_series['obj_val'].values)
 
         self._results.update(Optimizer.create_results(constraints, weights, 'torch', time_series))
 

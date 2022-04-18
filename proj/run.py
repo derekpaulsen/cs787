@@ -53,7 +53,7 @@ def main(args):
 
     opt = get_optimizer(args.method)
     with open(args.out, 'a') as ofs:
-        for ds in datasets[1:]:
+        for ds in datasets:
             res = run(opt, ds, args.k)
             ofs.write(json.dumps(res)) 
             ofs.write('\n')
