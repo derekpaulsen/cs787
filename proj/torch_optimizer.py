@@ -48,8 +48,8 @@ class BoostModel(nn.Module):
 
 class TorchOptimizer(Optimizer):
 
-    def __init__(self, iters=500, step_interval=10, restarts=100):
-        self._restarts = restarts
+    def __init__(self, iters=500, step_interval=10, timeout=600):
+        self._timeout = timeout
         self._iters = iters
         # number iterations per round (gradient updates)
         self._step_interval = step_interval
@@ -57,7 +57,7 @@ class TorchOptimizer(Optimizer):
                 'iters' : iters, 
                 'step_interval' : step_interval,
                 'total_grad_updates' : iters,
-                'restarts' : restarts
+                'timeout' : self._timeout
         }
     
     @property
@@ -66,26 +66,43 @@ class TorchOptimizer(Optimizer):
 
     def optimize(self, constraints):
         timer = Timer()
-        cands = [self._optimize(constraints) for i in range(self._restarts)]
-
+        X = torch.Tensor(constraints.values)
+        label = -torch.ones(len(constraints), dtype=torch.float32)
+        cands = []
+        while timer.get_total() < self._timeout:
+            w, obj_val = self._optimize(constraints.columns, X, label)
+            cands.append((w, obj_val, timer.get_total()))
+        
         self._results['opt_time'] = timer.get_interval()
-        # sort by the number of violated constraints
-        cands.sort(key=lambda x : x[1])
-        weights = self.post_process_boost_map(cands[0][0])
-        self._results.update(Optimizer.create_results(constraints, weights, 'torch'))
+        cands_df = pd.DataFrame(cands, columns=['weights', 'obj_val', 'time']).sort_values('time')
+
+        best_row = cands_df.sort_values(obj_val)\
+                        .iloc[0]
+    
+        boost_map = pd.Series(
+                np.maximum(best_row['weights'], 0.0),
+                index=constraints.columns
+        )
+        boost_map = boost_map[boost_map.gt(0)]
+        boost_map /= boost_map.min()
+        weights = self.post_process_boost_map(boost_map)
+
+        time_series = cands_df[['time', 'obj_val']]
+        # take the running best
+        time_series['obj_val'] = np.maximum.accumulate(time_series['obj_val'].values)
+
+        self._results.update(Optimizer.create_results(constraints, weights, 'torch', time_series))
 
         return weights
 
 
-    def _optimize(self, constraints):
+    def _optimize(self, columns, X, label):
         
-        model = BoostModel(len(constraints.columns))
+        model = BoostModel(len(columns))
         loss_fn = nn.L1Loss()
         optimizer = torch.optim.Adam(model.parameters(), lr=.01, weight_decay=0.0)
         lr_decay = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=1)
         
-        X = torch.Tensor(constraints.values)
-        label = -torch.ones(len(constraints), dtype=torch.float32)
 
         niter = self._iters  // self._step_interval
 
@@ -110,11 +127,5 @@ class TorchOptimizer(Optimizer):
         
         best_idx = np.argmin(cvs)
 
-        boost_map = pd.Series(
-                np.maximum(weights[best_idx], 0.0),
-                index=constraints.columns
-        )
-        boost_map = boost_map[boost_map.gt(0)]
-        boost_map /= boost_map.min()
 
-        return boost_map, cvs[best_idx]
+        return weights[best_idx], cvs[best_idx]

@@ -14,7 +14,7 @@ class Optimizer(ABC):
         pass
     
     @staticmethod
-    def create_results(constraints, weights, method_name):
+    def create_results(constraints, weights, method_name , time_series):
         violated = constraints.mul(weights).sum(axis=1).sub(1.0).gt(0.0)
         hist = violated.groupby(level=0).sum().value_counts()
         weights.index = [str(x) for x in weights.index]
@@ -23,7 +23,8 @@ class Optimizer(ABC):
                 'total_violated' : int(violated.sum()),
                 'hist' : hist.to_dict(),
                 'max_violated' : int(np.max(hist.index.values)),
-                'boost_weights' : weights.to_dict()
+                'boost_weights' : weights.to_dict(),
+                'time_series' : time_series.to_json(index=False)
         }
 
     @staticmethod

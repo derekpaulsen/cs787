@@ -1,6 +1,7 @@
 from utils import  get_logger, Timer
 import multiprocessing
 from optimizer import Optimizer
+from tempfile import mkstemp
 
 import pandas as pd
 import sys
@@ -10,6 +11,28 @@ import pulp
 
 N_PROCS=28
 log = get_logger(__name__)
+
+
+def parse_log_line(l):
+    toks = [x for x in l.split() if x[0].isdigit()]
+    if len(toks) != 9:
+        return None
+    # e.g. 120s
+    t = int(toks[-1][:-1])
+    # typically a float
+    soln_val = float(toks[5])
+
+    return (t, soln_val)
+
+
+def parse_gurobi_log(f):
+    with open(f) as ifs:
+        res = list(filter(lambda x : x is not None, map(parse_log_line, ifs)))
+        df = pd.DataFrame(res, columns=['time', 'obj_val'])
+
+    return df
+
+
 
 class LinProgOptimizer(Optimizer):
 
@@ -21,10 +44,12 @@ class LinProgOptimizer(Optimizer):
         # no timelimit currently
         self._solver_time_limit_secs = 3600 # 60 mins
         self._solver_presolve = True 
+        self._log_file = mkstemp(prefix='gurobi.log.')[1]
 
         self._results = {
                 'solver' : self._solver_name,
                 'relaxed' : self._relaxed,
+                'log_file' : self._log_file
         }
 
     
@@ -37,6 +62,7 @@ class LinProgOptimizer(Optimizer):
                 self._solver_name,
                 threads=self._solver_threads,
                 timeLimit=self._solver_time_limit_secs,
+                logPath=self._log_file
         )
     
     def _solve_problem(self, problem):
@@ -114,9 +140,11 @@ class LinProgOptimizer(Optimizer):
 
         boost_map = self._opt(constraints, self._relaxed)
         boost_map = self.post_process_boost_map(boost_map)
+        
+        time_series = parse_gurobi_log(self._log_file)
 
         method = 'LP' if self._relaxed else 'MILP'
-        self._results.update(Optimizer.create_results(constraints, boost_map, method))
+        self._results.update(Optimizer.create_results(constraints, boost_map, method, time_series))
 
         return boost_map
 
