@@ -1,0 +1,343 @@
+\documentclass[11pt]{article}
+
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{fullpage}
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{theorem}
+\usepackage{tabu,multirow}
+\usepackage{graphicx}
+\usepackage{color} 
+\makeatletter
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\topmargin}{0.25in}
+\setlength{\textheight}{8.25in}
+\setlength{\headheight}{0pt}
+\setlength{\headsep}{0pt}
+\setlength{\marginparwidth}{59pt}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt plus 1pt}
+\setlength{\theorempreskipamount}{5pt plus 1pt}
+\setlength{\theorempostskipamount}{0pt}
+\setlength{\abovedisplayskip}{8pt plus 3pt minus 6pt}
+
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                 {2ex plus -1ex minus -.2ex}%
+                                 {1.3ex plus .2ex}%
+                                 {\normalfont\Large\bfseries}}%
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                   {1ex plus -1ex minus -.2ex}%
+                                   {1ex plus .2ex}%
+                                   {\normalfont\large\bfseries}}%
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                   {1ex plus -1ex minus -.2ex}%
+                                   {1ex plus .2ex}%
+                                   {\normalfont\normalsize\bfseries}}
+\renewcommand\paragraph{\@startsection{paragraph}{4}{0mm}%
+                                  {1ex \@plus1ex \@minus.2ex}%
+                                  {-1em}%
+                                  {\normalfont\normalsize\bfseries}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\parindent}%
+                                     {2.0ex \@plus1ex \@minus .2ex}%
+                                     {-1em}%
+                                    {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\newenvironment{proof}{{\bf Proof:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofof}[1]{{\bf Proof of #1:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofofnobox}[1]{{\bf#1:  }}{}
+\newenvironment{example}{{\bf Example:  }}{\hfill\rule{2mm}{2mm}}
+\renewcommand{\thesection}{\lecnum.\arabic{section}}
+
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+
+\newtheorem{fact}{Fact}[section]
+\newtheorem{lemma}[fact]{Lemma}
+\newtheorem{theorem}[fact]{Theorem}
+\newtheorem{definition}[fact]{Definition}
+\newtheorem{corollary}[fact]{Corollary}
+\newtheorem{proposition}[fact]{Proposition}
+\newtheorem{claim}[fact]{Claim}
+\newtheorem{exercise}[fact]{Exercise}
+
+% math notation
+\newcommand{\R}{\ensuremath{\mathbb R}}
+\newcommand{\Z}{\ensuremath{\mathbb Z}}
+\newcommand{\N}{\ensuremath{\mathbb N}}
+\newcommand{\F}{\ensuremath{\mathcal F}}
+\newcommand{\SymGrp}{\ensuremath{\mathfrak S}}
+\newcommand{\pr}{{\bf {\rm Pr}}}
+
+\newcommand{\CCP}{\ensuremath{\sf P}}
+\newcommand{\CCNP}{\ensuremath{\sf NP}}
+\newcommand{\C}{\ensuremath{\mathcal C}}
+
+\newcommand{\size}[1]{\ensuremath{\left|#1\right|}}
+\newcommand{\ceil}[1]{\ensuremath{\left\lceil#1\right\rceil}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor#1\right\rfloor}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\polylog}{\operatorname{polylog}}
+
+% some abbreviations
+\newcommand{\e}{\varepsilon}
+\newcommand{\half}{\ensuremath{\frac{1}{2}}}
+\newcommand{\junk}[1]{}
+\newcommand{\sse}{\subseteq}
+\newcommand{\union}{\cup}
+\newcommand{\meet}{\wedge}
+
+\newcommand{\prob}[1]{\ensuremath{\text{{\bf Pr}$\left[#1\right]$}}}
+\newcommand{\expct}[1]{\ensuremath{\text{{\bf E}$\left[#1\right]$}}}
+\newcommand{\Event}{{\mathcal E}}
+
+\newcommand{\mnote}[1]{\normalmarginpar \marginpar{\tiny #1}}
+\newcommand{\DC}{\text{DC}}
+\newcommand{\OPT}{\text{OPT}}
+
+\newcommand{\headings}[4]{
+\noindent
+\fbox{\parbox{\textwidth}{
+	{\bf CS787: Advanced Algorithms} \hfill {{\bf Scribe:} #3}\\
+\vspace{0.02in}
+{{\bf Lecture #1:} #2} \hfill {{\bf Date:} #4}
+}}
+\vspace{0.2in}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document begins here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%% Fill in lecture number, topic, your name, and date of lecture below. %%
+
+\newcommand{\lecnum}{20}
+\headings{\lecnum}{k-Server Problem Analysis; Convex Body Chasing}{Derek Paulsen}{4/7/22}
+\section{k-server problem, continued}
+Last time, we discussed the k-server problem,
+\begin{itemize}
+	\item You have k-servers that are in a metric space (e.g. a line, 2-d euclidean space)
+	\item Requests arrive online each at some point in the space
+	\item Each request must be addressed by sending a single server to the request
+	\item Minimize the total distance the servers move to service the requests
+\end{itemize}
+
+The naive greedy algorithm of sending the closest server to the request to this problem is not competitive. 
+In this lecture we discuss the line metric, analyze the double coverage algorithm, and show that it is k-competitive.
+Recall the double coverage algorithm,
+
+\subsection{Double Coverage Algorithm}
+\begin{algorithm}
+	\caption{Double Coverage Algorithm}
+\begin{algorithmic}[1]
+	\State $x \gets $ the current positions of the servers
+	\State $r \gets $\text{ the next request}
+	\If{$r \not\in [\min(x), \max(x)]$}
+		\State move the closest server to $r$
+	\Else
+		\State $i \gets $ the closest server to the right of $r$
+		\State $j \gets $ the closest server to the left of $r$
+		\State $d \gets \min\{ |x_i - r|, |x_j - r| \}$
+		\State move servers $x_i$ and $x_j$ $d$ units toward $r$
+	\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}{The Double Coverage Algorithm is k-competitive} 
+\end{theorem}
+
+Let $\sigma$ be a sequence of requests, $\DC(\sigma)$ be the cost the double coverage algorithm 
+pays to service the requests and $\OPT(\sigma)$ be the cost that $\OPT$ pays to service the requests.
+
+\textbf{Proof :} For any sequence of requests $\sigma$ we want to show,
+\begin{equation}
+\DC(\sigma) \leq k \OPT(\sigma) + C
+\end{equation}
+
+Ideally, we would show that for each request, $\DC$ pays at most $k\OPT$ to service the request. 
+However this is unfortunately not true (imagine if $\OPT$ already has a server on the request).
+Instead we use a potential argument and show that for each request $i$, the change in $\DC = \Delta\DC$ plus
+the change in the potential, $\phi^{i} - \phi^{i-1} = \Delta\phi^i$ is less than $k$ times the change in $\OPT = k\Delta\OPT$, 
+that is,
+
+\begin{equation}
+\Delta\DC^i(\sigma) + \Delta\phi^{i} \leq k \Delta\OPT^i(\sigma)
+\label{eq:step}
+\end{equation}
+
+Where $\phi$ is the potential function. Specifically, for request $i$ if $x^i$ is the position of 
+our servers and $y^i$ is the position of OPT's servers
+
+$$
+\phi^i = \phi(x^i, y^i) = \phi_1^i +  \phi_2^i = kM(x^i, y^i) + \sum_{h<l} d(x_h^i, x_l^i)
+$$
+
+Where $\phi_1 = kM(x,y)$ is $k$ times the minimum distance matching between $x$ and $y$, and $ \phi_2 = \sum_{h<l} d(x_h, x_l)$ 
+is the pairwise distances all our servers $x$. 
+
+Note that if we sum \ref{eq:step} for each step the potentials cancel out and we are left with, 
+
+$$
+\DC(\sigma) + \phi^{last} - \phi^{first} \leq k \OPT(\sigma) + C
+$$
+Since $\phi$ is bounded we get,
+
+$$
+\DC(\sigma) \leq k \OPT(\sigma) + C
+$$
+
+For ease of exposition we break each request into two stages, in stage one OPT moves, 
+and stage two DC moves. Now consider the stage 1, where OPT moves distance $d$ to service the 
+request, consider the changes of each 
+
+\begin{itemize}
+		\item $\Delta\OPT = d$, since OPT moved $d$
+		\item $\Delta\DC = 0$, since we didn't move yet
+		\item $\Delta\phi_1 \leq kd$, since in the worse case, the cost of $M(x,y)$ increased by $d$
+		\item $\Delta\phi_2 = 0$, since we didn't move yet
+\end{itemize}
+
+From this we get, 
+
+\begin{align*}
+	\Delta\DC^i(\sigma) + \Delta\phi^{i} &\leq k \Delta\OPT^i(\sigma)\\
+	0 + kd  + 0 &\leq kd\\
+\end{align*}
+
+Hence for stage one, 
+$$
+\Delta\DC^i(\sigma) + \Delta\phi^{i} \leq k \Delta\OPT^i(\sigma)
+$$
+
+For stage two we have two cases, 
+\begin{enumerate}
+		\item The request is outside the servers, in which case, we send one server 
+		\item The request is between two servers, in which case, we send two servers
+\end{enumerate}
+
+For case one we have, suppose we move one server $d'$ to service the request,  
+
+\begin{itemize}
+		\item $\Delta\OPT = 0$, since OPT didn't move, 
+		\item $\Delta\DC = d'$, since we moved a single server $d$
+		\item $\Delta\phi_1 = -kd'$, since we moved to the same point as one OPT's servers to service the request
+		\item $\Delta\phi_2 = (k-1)d'$, since we moved one server away from all the others
+\end{itemize}
+
+Summing these terms we get,
+\begin{align*}
+	\Delta\DC^i(\sigma) + \Delta\phi^{i} &\leq k \Delta\OPT^i(\sigma)\\
+	d' - kd'  + (k-1)d' &\leq 0\\
+	0 &\leq 0\\
+\end{align*}
+
+For case two suppose again the we move both servers $d'$, 
+
+\begin{itemize}
+		\item $\Delta\OPT = 0$, since OPT didn't move, 
+		\item $\Delta\DC = 2d'$, since we moved two servers $d'$
+		\item $\Delta\phi_1 \leq 0$, since we moved to the same point as one OPT's servers to service the request, but then moved another server possible away from the one it was matched to
+		\item $\Delta\phi_2 = -2d'$, since two servers moved closer to each other and the distances to between the servers that moved and didn't move cancel out
+\end{itemize}
+Summing these terms we get,
+\begin{align*}
+	\Delta\DC^i(\sigma) + \Delta\phi^{i} &\leq k \Delta\OPT^i(\sigma)\\
+	2d' - 2d'  + 0 &\leq 0\\
+	0 &\leq 0\\
+\end{align*}
+
+Therefore, we have shown that at each step, 
+$$
+\Delta\DC^i(\sigma) + \Delta\phi^{i} \leq k \Delta\OPT^i(\sigma)
+$$
+
+Which implies, 
+
+$$
+\DC(\sigma) \leq k \OPT(\sigma) + C
+$$
+
+Which by definition means that DC is $k$-competitive. $\square$
+
+
+\section{Convex Body Chasing}
+
+We now look at a problem related to the k-server problem called convex body chasing which is,
+
+\begin{itemize}
+		\item you have a single server
+		\item requests arrive online and are convex bodies
+		\item service each request by move the server into the convex body
+		\item minimize the distance your server travels for the sequence of requests
+\end{itemize}
+
+For a long time whether there was any competitive algorithm was an open problem. The first 
+result to demonstrate a competitive algorithm was for chasing half-spaces (i.e. each convex body was a 
+half-space) where the authors showed an algorithm that was $2^d$-competitive, where $d$ is the dimension 
+of the space.  
+
+\textbf{Proof : } no algorithm is better than $\sqrt{d}$ competitive
+
+Consider the sequence of requests, first is a halfspace, the second is a point on the boundary 
+of the first halfspace. Clearly, the optimal solution is to just go to the second point immediately 
+(since it satisfies both requests). However for any algorithm, no matter which point we go to 
+first, the second request can be placed somewhere else the boundary of the halfspace, meaning the algorithm 
+takes an $L$ shaped path, which is at best $\sqrt{d}$-competitive with the direct (optimal) path.
+
+
+More recently in 2019 it was shown that this problem can always be solved with competitive ratio
+$d$ by solving the special case where each request is nested inside the previous one. Creating an algorithm 
+for this special case can then be adapted to the general case. The algorithm to show this is simply
+
+\begin{itemize}
+		\item Move to the Steiner Point of the request
+\end{itemize}
+
+\begin{definition}[Steiner Point]
+	Each vertex of a convex body has a cone where it is the minimum point inside of the convex body if you are moving 
+	in a direction within the cone. The Steiner Point is the average of the vertexes of the convex body, weighted by the size 
+	of it's cone. 
+\end{definition}
+
+
+Mathmatically, for a convex body $k$, the Steiner point $St(k)$ is,
+\begin{align*}
+	St(k) &= \int_{||\theta|| = 1} \nabla_k(\theta) d\theta, \quad \nabla_k(\theta) = argmax_{x \in k}\{x \text{ is the minimum point moving in direction } \theta\}
+\end{align*}
+
+Where $|| \theta|| = 1$ is all vectors on the unit sphere. This can be rewritten as, 
+\begin{align*}
+	St(k) &= d \int_{||\theta|| = 1} S_k(\theta) \theta d\theta, \quad S_k(\theta) = max_{x \in k}\{x \text{ is the minimum point moving in direction } \theta\}
+\end{align*}
+
+
+\textbf{Claim :} For nested convex bodies, moving to $St(k)$ is d-competitive.
+
+\textbf{Proof :} 
+
+We begin with the sum of the cost for each step, for a sequence of requests $\sigma = \{k_1, ..., k_T\}$,
+
+\begin{align*}
+	ALG(\sigma) &= \sum_{i=1}^T ||St(k_i) - St(k_{i-1})|| \quad \text{ the cost of moving from each steiner point to the other}\\
+		&= \sum_{i=1}^T ||d \int_{||\theta|| = 1} (S_{k_i}(\theta) - S_{k_{i-1}}(\theta)) \theta d\theta || \quad \text{ replace with definition from above}\\
+		&= d   \int_{||\theta|| = 1}\sum_{i=1}^T ||S_{k_i}(\theta) - S_{k_{i-1}}(\theta)  ||\theta d\theta \quad \text{move sum inside}\\
+		&= d   \int_{||\theta|| = 1}\sum_{i=1}^T ||S_{k_i}(\theta) - S_{k_{i-1}}(\theta) || d\theta\quad ||\theta|| = 1\\
+		&= d   \int_{||\theta|| = 1}||S_{k_T}(\theta) - S_{k_{1}}(\theta) || d\theta\quad \text{ the sum telescopes, leaving on the first and last term} \\ 
+\end{align*}
+
+It can then be shown that $\int_{||\theta|| = 1} S_{k_T}(\theta) - S_{k_{1}}(\theta) \leq \OPT + C$, hence the algorithm is $d$-competitive.
+
+
+
+
+\end{document}

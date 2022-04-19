@@ -1,0 +1,190 @@
+\documentclass[a4paper]{article}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{paralist}
+\usepackage{epstopdf}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyvrb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{float}
+\usepackage{paralist}
+\usepackage[svgname]{xcolor}
+\usepackage{enumerate}
+\usepackage{array}
+\usepackage{times}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{comment}
+\usepackage{environ}
+\usepackage{times}
+\usepackage{textcomp}
+\usepackage{caption}
+\usepackage[square,numbers]{natbib}
+
+
+
+\urlstyle{rm}
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+
+% TO SHOW SOLUTIONS, include following (else comment out):
+\newenvironment{soln}{
+    \leavevmode\color{blue}\ignorespaces
+}{}
+
+
+\hypersetup{
+%    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+\geometry{
+  top=1in,            % <-- you want to adjust this
+  inner=1in,
+  outer=1in,
+  bottom=1in,
+  headheight=3em,       % <-- and this
+  headsep=2em,          % <-- and this
+  footskip=3em,
+}
+
+
+\title{Stochastic Gradient Descent for Numerical MAX-CSP} % Title
+\author{
+Derek Paulsen \\
+} 
+
+\date{}
+
+\newcommand{\ind}[1]{\mathds{1}[#1]}
+\def \eps{\epsilon}
+\begin{document}
+\maketitle 
+
+
+\section{Abstract}
+\section{Introduction}
+% TODO
+\section{Background}
+
+
+\subsubsection{Constraint satisfaction problems}
+
+Constraint satisfaction problems (CSPs) encompasses many different problems. Formally a 
+constraint satisfaction problem (CSP) is defined as a triple $\langle X, D, C \rangle$, where 
+% XXX this is from wikipedia https://en.wikipedia.org/wiki/Constraint_satisfaction_problem
+\begin{align*}
+	X &= \{X_1, ..., X_n\} \text{ the set of variables}\\
+	D &= \{D_1, ..., D_n\} \text{ the domains of each respective variable}\\
+	C &= \{C_1, ..., C_m\} \text{ the set of constraints}\\
+\end{align*}
+
+A classic example of CSP, is the 3-SAT problem. In this case
+the boolean variables that appear in at least one clause would be $X$. The domain for 
+each variable would be $D_i = \{true, false\}$ and the constraints would all be 
+three variable disjunctive clauses. The 3-SAT problem of course known to be NP-Complete.
+In this paper we focus on a subset of CSPs called Numerical MAX-CSP. 
+In typical a CSP all constraints must be satisfied, however in MAX-CSP the goal is simply to 
+satisfy as may constraints as possible, additionally the domains are the variables 
+are numerical (e.g. the real numbers). 
+
+While this problem has certainly been considered before, we were only able to find one previous 
+work that directly address this issue. 
+%TODO Add citation here 
+
+In this paper the authors propose a solution to numerical MAX-CSP. In particular where 
+$D_i = \mathds{R}$ and each constraint $C_j = a_j^Tx \leq b_j, a_j \in \mathds{R}^m, b_j \in \mathds{R}$. 
+That is, given a set of linear inequalities, satisfy as many as possible. In the paper the authors 
+propose a specific algorithm for this problem based on branch and bound techniques. Unfortunately, 
+this algorithm is worst case exponential time. In fact, this problem is easy to formulate as a mixed integer 
+program,
+
+\begin{align*}
+\min_{x,z}\quad &1^Tz\\
+s.t. \quad Ax - \epsilon z &\leq 0\\
+		w &\in \mathds{R}^n\\
+		z &\in \{0,1\}^m\\
+\end{align*}
+
+Where $\epsilon$ is some large number. The general problem of mixed integer linear programming is 
+of course NP-Hard in general (by reduction to 0-1 integer programming which is NP-Complete). Hence 
+this numerical MAX-CSP is likely not to admit an efficient solution. 
+
+\subsubsection{Stochastic Gradient Descent}
+
+Stochastic gradient descent (SGD) is an optimization technique which has gained much 
+attention in recent years due to its use in training neural networks for machine learning 
+tasks such as computer vision and speech recognition. Despite this focus on machine learning,
+stochastic gradient descent is a general purpose optimization procedure, capable of optimizing arbitrary 
+differentiable functions. Many variations have been proposed in recent years, however
+each technique uses the same basic idea. Given an input $X$ and a desired output $y$, take a sample $X'$ and $y'$, compute $f(X')$ and 
+measure the difference between $f(X')$ and $y'$ (e.g. $|f(X') - y'|$) . Next compute the gradient $\nambla(|f(X') - y'|)$ 
+of update the internal state of by taking a step in a direction of $-\nambla(|f(X') - y'|)$. Repeat this 
+process until some criteria in met.
+
+While SGD is not guaranteed and, frequently doesn't, find global optimums it is very effective at finding 
+local minima for complex functions which are not convex. This makes it an invaluable tool for 
+optimizing functions which don't admit exact optimization techniques such as those used in 
+linear programs and quadratic programs.
+
+\section{Motivation}
+
+Numerical MAX-CSPs have a wide variety to applications in such as debugging infeasible 
+linear programs, however we are interested in one particular problem, which is that of 
+tuning the weights for full search engines. 
+
+Full text search engines are used in a plethora of applications. These search engines (such as Apache Lucene)
+are built for efficient retrieval of top-k documents based on a TF/IDF based scoring metric which is dot 
+product between two sparse vectors $q^Td = score$[[1]][1][[2]][2][[3]][3]. While this default scoring gives decent results out of the box, 
+it is frequently augmented by re-weighting the query $q$, with some weight vector $w$
+changing to scoring to be $(q\odot w)^Td = score$. This allows for boosting of certain terms or fields
+to improve the quality of search results while not changing the underlying search algorithm. 
+
+The problem we will address in this project is finding a good weight vector $w$. In particular our
+problem setting is as follows. We are giving a set of query vectors $Q = \{q_1, ... q_n\}$. For each 
+of these query vectors $q_i$ we are given a set of $k$ retrieved document vectors with labels $R_i = \{(d_{i,1}, l_{i,1}), ..., (d_{i, k}, l_{i,k})\}$, 
+$l \in \{relevant, irrelevant\}$.
+We wish to find a weight vector $w$ that minimizes the number of irrelevant documents that are examined 
+before the relevant result is found. This problem can be formulated as a mixed integer linear program (MILP)
+of the following form
+\begin{align*}
+\min_{w,z}\quad &1^Tz\\
+s.t. \quad Aw - \epsilon z &\leq 0\\
+		w &\geq 0\\
+		z &\in \{0,1\}\\
+\end{align*}
+
+\section{Problem}
+
+As mentioned above, we can formulate our numerical MAX-CSP as a MILP, which can then be 
+feed into an off the shelf solver. While this is simple solution (at least programming-wise), 
+it has a major issue, namely that depending on the input, the solver time could be exponential in 
+the number of constraints. For our motivating example, we would ideally feed in many labeled queries, 
+each producing tens of constraints, hence exponential runtime in the number of constraints greatly 
+reduces the usefulness of the solution. Moreover, because we have continuous and binary variables, 
+the problem doesn't easily admit an LP relaxation approximation.
+
+\section{Our Solution}
+
+To remedy problem of runtime we propose a new solution based on 
+stochstic gradient descent. 
+
+
+\section{Experiments}
+\section{Discussion}
+\section{Conclusions}
+
+
+%\bibliographystyle{abbrvnat}
+%\bibliography{references}
+\end{document}
