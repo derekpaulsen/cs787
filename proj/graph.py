@@ -3,12 +3,16 @@ import json
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
+from argparse import ArgumentParser
+
 
 DATA_DIR = Path('./exp_res')
 # json data
 MILP = DATA_DIR / 'fixed_MILP.json'
 LP = DATA_DIR / 'LP.json'
 TORCH = DATA_DIR / 'torch.json'
+argp = ArgumentParser()
+argp.add_argument('--show_graph', action='store_true')
 
 
 DF = None
@@ -29,28 +33,37 @@ def read_data(f):
 
     return df
 
+def print_stats(df, ds):
 
-def graph(milp, torch):
+    t_overtake = df['MILP'].lt(df['torch']).idxmax()
+    print(ds)
+    print(f'time for MILP to overtake torch : {t_overtake}')
+    print(f'time for MILP to reach best value: {df.MILP.idxmin()}')
+    print(f'time for torch to reach best value: {df.torch.idxmin()}')
+    print()
+
+def graph(milp, torch, show):
     for ds in milp.index:
         ts = pd.concat([
             milp.at[ds, 'time_series'],
             torch.at[ds, 'time_series']
         ], axis=1).fillna(method='ffill').sort_index()
-        print(ts)
-        ax = ts.plot()
-        ax.set_title(ds)
-        ax.legend()
-        plt.show()
-    
+        print_stats(ts, ds)
+        if show:
+            ax = ts.plot()
+            ax.set_title(ds)
+            ax.legend()
+            plt.show()
+        
 
-def main():
+def main(args):
     milp = read_data(MILP)
     torch = read_data(TORCH)
-    graph(milp, torch)
+    graph(milp, torch, args.show_graph)
 
 
 if __name__ == '__main__':
-    main()
+    main(argp.parse_args())
 
 
 
