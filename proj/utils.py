@@ -7,7 +7,7 @@ logging.basicConfig(
         format='[%(filename)s:%(lineno)s - %(funcName)s() ] %(asctime)-15s : %(message)s',
 )
 
-log_level = logging.INFO
+log_level = logging.DEBUG
 logger = logging.getLogger(__name__)
 
 class Timer:
