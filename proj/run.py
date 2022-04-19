@@ -51,9 +51,9 @@ def main(args):
     if args.k < 1:
         raise ValueError(args.k)
 
-    opt = get_optimizer(args.method)
     with open(args.out, 'a') as ofs:
         for ds in datasets:
+            opt = get_optimizer(args.method)
             res = run(opt, ds, args.k)
             ofs.write(json.dumps(res)) 
             ofs.write('\n')
