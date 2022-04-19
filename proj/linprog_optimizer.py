@@ -15,7 +15,7 @@ log = get_logger(__name__)
 
 def parse_log_line(l):
     toks = [x for x in l.split() if x[0].isdigit()]
-    if len(toks) != 9:
+    if len(toks) not in {9, 10}:
         return None
     # e.g. 120s
     t = int(toks[-1][:-1])
