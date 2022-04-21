@@ -52,6 +52,7 @@ def graph(milp, torch, show):
         if show:
             ax = ts.plot()
             ax.set_title(ds)
+            ax.set_ylim(bottom=0.0)
             ax.legend()
             plt.show()
         
