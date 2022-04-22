@@ -10,7 +10,7 @@ DATA_DIR = Path('./exp_res/k=50')
 # json data
 MILP = DATA_DIR / 'MILP.json'
 LP = DATA_DIR / 'LP.json'
-TORCH = DATA_DIR / 'torch.json'
+TORCH = DATA_DIR / 'torch2.json'
 argp = ArgumentParser()
 argp.add_argument('--show_graph', action='store_true')
 
