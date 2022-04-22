@@ -6,9 +6,9 @@ import numpy as np
 from argparse import ArgumentParser
 
 
-DATA_DIR = Path('./exp_res/k=25')
+DATA_DIR = Path('./exp_res/k=50')
 # json data
-MILP = DATA_DIR / 'fixed_MILP.json'
+MILP = DATA_DIR / 'MILP.json'
 LP = DATA_DIR / 'LP.json'
 TORCH = DATA_DIR / 'torch.json'
 argp = ArgumentParser()
