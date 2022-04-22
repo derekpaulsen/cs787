@@ -17,7 +17,7 @@ datasets = list(DATA_DIR.glob('*.parquet'))
 argp = ArgumentParser()
 
 argp.add_argument('--method', required=True, choices=['torch', 'MILP', 'LP'])
-argp.add_argument('--k', required=False, default=25, type=int)
+argp.add_argument('--k', required=False, default=50, type=int)
 argp.add_argument('--out', default='out.json')
 
 
@@ -42,6 +42,8 @@ def run(opt, f, k):
     res['dataset'] = f.stem
     res['dataset_path'] = str(f.absolute())
     res['time_ran'] = str(datetime.now())
+    res['num_constraints'] = len(const)
+    res['topk'] = k
     log.info(f'\n{pformat(res)}')
 
     return res

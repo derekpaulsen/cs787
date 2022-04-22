@@ -6,7 +6,7 @@ import numpy as np
 from argparse import ArgumentParser
 
 
-DATA_DIR = Path('./exp_res')
+DATA_DIR = Path('./exp_res/k=25')
 # json data
 MILP = DATA_DIR / 'fixed_MILP.json'
 LP = DATA_DIR / 'LP.json'

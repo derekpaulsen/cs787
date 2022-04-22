@@ -21,7 +21,7 @@ class PosLinear(nn.Module):
         nn.Module.__init__(self)
 
         self._dim = in_features
-        self.weights = nn.Parameter(torch.rand(self._dim, dtype=torch.float32, requires_grad=True) + .01)
+        self.weights = nn.Parameter(torch.rand(self._dim, dtype=torch.float32, requires_grad=True) + .1)
 
     def forward(self, X):
         return torch.matmul(X, nn.functional.relu(self.weights))
@@ -48,7 +48,7 @@ class BoostModel(nn.Module):
 
 class TorchOptimizer(Optimizer):
 
-    def __init__(self, iters=500, step_interval=10, timeout=Optimizer.TIMEOUT):
+    def __init__(self, iters=500, step_interval=25, timeout=Optimizer.TIMEOUT):
         self._timeout = timeout
         self._iters = iters
         # number iterations per round (gradient updates)
@@ -100,7 +100,7 @@ class TorchOptimizer(Optimizer):
         
         model = BoostModel(len(columns))
         loss_fn = nn.L1Loss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=.01, weight_decay=0.0)
+        optimizer = torch.optim.Adam(model.parameters(), lr=.5, weight_decay=0.0)
         lr_decay = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=1)
         
 
@@ -121,11 +121,11 @@ class TorchOptimizer(Optimizer):
             lr_decay.step()
             p = torch.sum(pred).cpu().detach().numpy()
             cv = torch.count_nonzero(pred > -1.0).cpu().detach().numpy()
-            log.debug(f'epoch {i} : sum = {p}, total > 0 = {cv}')
+            #log.debug(f'epoch {i} : sum = {p}, total > 0 = {cv}')
             weights[i] = model.weights
             cvs[i] = cv
         
         best_idx = np.argmin(cvs)
-        #log.debug(f'best idx : {best_idx}, value : {cvs[best_idx]}')
+        log.debug(f'best idx : {best_idx}, value : {cvs[best_idx]}, {cvs}')
 
         return weights[best_idx], cvs[best_idx]
