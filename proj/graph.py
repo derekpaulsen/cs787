@@ -10,7 +10,7 @@ DATA_DIR = Path('./exp_res/k=50')
 # json data
 MILP = DATA_DIR / 'MILP.json'
 LP = DATA_DIR / 'LP.json'
-TORCH = DATA_DIR / 'torch2.json'
+TORCH = DATA_DIR / 'torch.json'
 argp = ArgumentParser()
 argp.add_argument('--show_graph', action='store_true')
 
@@ -34,8 +34,11 @@ def read_data(f):
     return df
 
 def print_stats(df, ds):
+    if df['MILP'].lt(df['torch']).any():
+        t_overtake = df['MILP'].lt(df['torch']).idxmax()
+    else:
+        t_overtake = np.nan
 
-    t_overtake = df['MILP'].lt(df['torch']).idxmax()
     print(ds)
     print(f'time for MILP to overtake torch : {t_overtake}')
     print(f'time for MILP to reach best value: {df.MILP.idxmin()}')
@@ -43,6 +46,7 @@ def print_stats(df, ds):
     print()
 
 def graph(milp, torch, show):
+    print(milp.index)
     for ds in milp.index:
         ts = pd.concat([
             milp.at[ds, 'time_series'],
