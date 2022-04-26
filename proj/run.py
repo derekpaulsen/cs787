@@ -37,6 +37,7 @@ def get_optimizer(t):
         raise ValueError(t)
 
 def run(opt, f, k):
+    f = Path(f)
     log.info(f'running {f}')
     const = Optimizer.read_constraints(f)
     const = Optimizer.truncate_topk(const, k)
