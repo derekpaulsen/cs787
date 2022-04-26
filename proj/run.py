@@ -55,10 +55,11 @@ def main(args):
 
     with open(args.out, 'a') as ofs:
         for ds in datasets:
-            opt = get_optimizer(args.method)
-            res = run(opt, ds, args.k)
-            ofs.write(json.dumps(res)) 
-            ofs.write('\n')
+            if 'Music' in ds.name:
+                opt = get_optimizer(args.method)
+                res = run(opt, ds, args.k)
+                ofs.write(json.dumps(res)) 
+                ofs.write('\n')
 
 
 if __name__ == '__main__':
