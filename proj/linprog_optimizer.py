@@ -72,6 +72,7 @@ class LinProgOptimizer(Optimizer):
         return timer.get_interval()
 
     def  _opt(self, constraints, relaxed):
+        timer = Timer()
         # the variables corresponding to the boost values in the 
         # query spec, this is the the main optimization target
         boost_vars = pd.Series(data=[
@@ -129,7 +130,9 @@ class LinProgOptimizer(Optimizer):
 
         # add objective function
         problem += query_cost_vars.sum()
-        
+        self._results['setup_time'] = timer.get_total()
+
+        log.info('starting solver')
         self._results['opt_time'] = self._solve_problem(problem)
         # get values to boosting variables from solution
         boost_map = boost_vars.apply(pulp.value)
@@ -138,7 +141,7 @@ class LinProgOptimizer(Optimizer):
 
 
     def optimize(self, constraints):
-
+        log.info('starting optimization')
         boost_map = self._opt(constraints, self._relaxed)
         boost_map = self.post_process_boost_map(boost_map)
         
