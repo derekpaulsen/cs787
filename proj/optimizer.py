@@ -17,7 +17,8 @@ class Optimizer(ABC):
     
     @staticmethod
     def create_results(constraints, weights, method_name , time_series):
-        violated = constraints.mul(weights).sum(axis=1).gt(-1.0)
+        # we can always scale values to make the margin as wide as we want
+        violated = constraints.mul(weights).sum(axis=1).ge(0)
         # correct for float inprecision 
         time_series['obj_val'] = np.maximum(violated.sum(), time_series['obj_val'].values)
         hist = violated.groupby(level=0).sum().value_counts()
@@ -65,4 +66,4 @@ class Optimizer(ABC):
     @staticmethod
     def post_process_boost_map(boost_map):
         boost_map = boost_map.where(boost_map > 0).dropna()
-        return boost_map 
+        return boost_map

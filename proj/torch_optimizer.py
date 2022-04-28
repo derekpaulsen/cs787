@@ -121,7 +121,7 @@ class TorchOptimizer(Optimizer):
 
             lr_decay.step()
             #p = torch.sum(pred).cpu().detach().numpy()
-            cv = torch.count_nonzero(pred > -1.0).cpu().detach().numpy()
+            cv = torch.count_nonzero(pred >= 0).cpu().detach().numpy()
             #log.debug(f'epoch {i} : sum = {p}, total > 0 = {cv}')
             weights[i] = model.weights
             cvs[i] = cv
