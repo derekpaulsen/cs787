@@ -26,7 +26,7 @@ def process_time_series(x):
 
 def read_data(f):
     with open(f) as ifs:
-        df = pd.DataFrame(list(map(json.loads,ifs))).set_index('dataset')
+        df = pd.DataFrame([json.loads(x) for x in ifs if len(x) > 1]).set_index('dataset')
 
     method_name = df['method_name'].iloc[0]
     df['time_series'] = [process_time_series(x).rename(method_name) for x in df['time_series'].values]
@@ -34,7 +34,7 @@ def read_data(f):
     return df
 
 def print_stats(df, ds):
-    if df['MILP'].lt(df['torch']).any():
+    if 'MILP' in df.columns and df['MILP'].lt(df['torch']).any():
         t_overtake = df['MILP'].lt(df['torch']).idxmax()
     else:
         t_overtake = np.nan
