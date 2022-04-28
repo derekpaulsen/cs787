@@ -67,7 +67,7 @@ class TorchOptimizer(Optimizer):
     def optimize(self, constraints):
         timer = Timer()
         X = torch.Tensor(constraints.values)
-        label = -torch.ones(len(constraints), dtype=torch.float64)
+        label = -torch.ones(len(constraints), dtype=torch.float32)
         cands = []
         self._results['setup_time'] = timer.get_total()
         while timer.get_total() < self._timeout:

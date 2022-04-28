@@ -33,7 +33,7 @@ class Optimizer(ABC):
 
     @staticmethod
     def read_constraints(file):
-        constraints = pd.read_parquet(file)
+        constraints = pd.read_parquet(file).astype(np.float32)
         # begins as (id2, matching tuple, id1)
         constraints.index = pd.MultiIndex.from_tuples(list(map(eval, constraints.index)))
         constraints.columns = pd.MultiIndex.from_tuples(list(map(eval, constraints.columns)))
