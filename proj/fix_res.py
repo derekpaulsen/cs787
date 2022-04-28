@@ -42,7 +42,7 @@ def fix_res(dat):
     const = Optimizer.read_constraints(f)
     const = Optimizer.truncate_topk(const, dat['topk'])
 
-    dat['total_violated'] = Optimizer.create_results(const, weights, dat['method_name'], pd.DataFrame(columns=['time', 'obj_val']))
+    dat['total_violated'] = Optimizer.create_results(const, weights, dat['method_name'], pd.DataFrame(columns=['time', 'obj_val']))['total_violated']
 
     return dat
 
