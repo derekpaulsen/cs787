@@ -103,7 +103,7 @@ class LinProgOptimizer(Optimizer):
             # a_i'x - z_i <= -1
             # remove coeffecients = 0 
             const = const[const != 0]
-            problem += const.mul(boost_vars[const.index]).sum() - 10000 * constraint_indicator_vars.at[idx] <= -1.0
+            problem += const.mul(boost_vars[const.index]).sum() - 1000 * constraint_indicator_vars.at[idx] <= -1.0
         
 
         # add objective function
