@@ -8,9 +8,9 @@ from argparse import ArgumentParser
 
 DATA_DIR = Path('./exp_res/k=50')
 # json data
-MILP = DATA_DIR / 'MILP.json'
-LP = DATA_DIR / 'LP.json'
-TORCH = DATA_DIR / 'torch.json'
+MILP = DATA_DIR / 'MILP_fixed.json'
+LP = DATA_DIR / 'LP_fixed.json'
+TORCH = DATA_DIR / 'torch_fixed.json'
 argp = ArgumentParser()
 argp.add_argument('--show_graph', action='store_true')
 
