@@ -5,7 +5,7 @@ import pandas as pd
 
 class Optimizer(ABC):
 
-    TIMEOUT=2700 # 24hrs of cpu time
+    TIMEOUT=60 # 24hrs of cpu time
     
     @abstractproperty
     def results(self):
@@ -18,6 +18,8 @@ class Optimizer(ABC):
     @staticmethod
     def create_results(constraints, weights, method_name , time_series):
         violated = constraints.mul(weights).sum(axis=1).gt(-1.0)
+        # correct for float inprecision 
+        time_series['obj_val'] = np.maximum(violated.sum(), time_series['obj_val'].values)
         hist = violated.groupby(level=0).sum().value_counts()
         weights.index = [str(x) for x in weights.index]
         return {
@@ -63,4 +65,4 @@ class Optimizer(ABC):
     @staticmethod
     def post_process_boost_map(boost_map):
         boost_map = boost_map.where(boost_map > 0).dropna()
-        return boost_map / boost_map.min()
+        return boost_map 

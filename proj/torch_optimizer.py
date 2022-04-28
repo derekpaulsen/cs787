@@ -48,7 +48,7 @@ class BoostModel(nn.Module):
 
 class TorchOptimizer(Optimizer):
 
-    def __init__(self, iters=100, step_interval=25, timeout=Optimizer.TIMEOUT):
+    def __init__(self, iters=500, step_interval=25, timeout=Optimizer.TIMEOUT):
         self._timeout = timeout
         self._iters = iters
         # number iterations per round (gradient updates)
@@ -67,7 +67,7 @@ class TorchOptimizer(Optimizer):
     def optimize(self, constraints):
         timer = Timer()
         X = torch.Tensor(constraints.values)
-        label = -torch.ones(len(constraints), dtype=torch.float32)
+        label = -torch.ones(len(constraints), dtype=torch.float64)
         cands = []
         self._results['setup_time'] = timer.get_total()
         while timer.get_total() < self._timeout:
