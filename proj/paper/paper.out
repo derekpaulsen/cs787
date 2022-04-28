@@ -1,9 +1,12 @@
 \BOOKMARK [1][-]{section.1}{Abstract}{}% 1
 \BOOKMARK [1][-]{section.2}{Introduction}{}% 2
 \BOOKMARK [1][-]{section.3}{Background}{}% 3
-\BOOKMARK [1][-]{section.4}{Motivation}{}% 4
-\BOOKMARK [1][-]{section.5}{Problem}{}% 5
-\BOOKMARK [1][-]{section.6}{Our Solution}{}% 6
-\BOOKMARK [1][-]{section.7}{Experiments}{}% 7
-\BOOKMARK [1][-]{section.8}{Discussion}{}% 8
-\BOOKMARK [1][-]{section.9}{Conclusions}{}% 9
+\BOOKMARK [2][-]{subsubsection.3.0.1}{Constraint satisfaction problems}{section.3}% 4
+\BOOKMARK [3][-]{subsubsection.3.0.2}{Gradient Descent}{subsubsection.3.0.1}% 5
+\BOOKMARK [1][-]{section.4}{Motivation}{}% 6
+\BOOKMARK [1][-]{section.5}{Baseline Solutions}{}% 7
+\BOOKMARK [1][-]{section.6}{Problem with Baseline Solutions}{}% 8
+\BOOKMARK [1][-]{section.7}{Our Solution}{}% 9
+\BOOKMARK [1][-]{section.8}{Experiments}{}% 10
+\BOOKMARK [1][-]{section.9}{Discussion}{}% 11
+\BOOKMARK [1][-]{section.10}{Conclusions}{}% 12

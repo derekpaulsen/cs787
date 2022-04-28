@@ -66,6 +66,7 @@ Derek Paulsen \\
 
 \date{}
 
+\newcommand{\red}[1]{{\color{red}#1}}
 \newcommand{\ind}[1]{\mathds{1}[#1]}
 \def \eps{\epsilon}
 \begin{document}
@@ -120,20 +121,23 @@ Where $\epsilon$ is some large number. The general problem of mixed integer line
 of course NP-Hard in general (by reduction to 0-1 integer programming which is NP-Complete). Hence 
 this numerical MAX-CSP is likely not to admit an efficient solution. 
 
-\subsubsection{Stochastic Gradient Descent}
+\subsubsection{Gradient Descent}
 
-Stochastic gradient descent (SGD) is an optimization technique which has gained much 
-attention in recent years due to its use in training neural networks for machine learning 
+%TODO rewrite this 
+
+Gradient descent is an optimization technique which has gained much 
+attention in recent years due to the stochastic variant being used in training neural networks for machine learning 
 tasks such as computer vision and speech recognition. Despite this focus on machine learning,
-stochastic gradient descent is a general purpose optimization procedure, capable of optimizing arbitrary 
+gradient descent is a general purpose optimization procedure, capable of optimizing arbitrary 
 differentiable functions. Many variations have been proposed in recent years, however
-each technique uses the same basic idea. Given an input $X$ and a desired output $y$, take a sample $X'$ and $y'$, compute $f(X')$ and 
-measure the difference between $f(X')$ and $y'$ (e.g. $|f(X') - y'|$) . Next compute the gradient $\nambla(|f(X') - y'|)$ 
-of update the internal state of by taking a step in a direction of $-\nambla(|f(X') - y'|)$. Repeat this 
-process until some criteria in met.
+each technique uses the same basic idea. Given a function $f$ and current point $x$, compute $f(x)$. 
+Next compute the gradient $\nabla(f(x))$ and update $x$ taking a step in a direction of $-\eta \nabla(f(x))$. Repeat this 
+process until the minima of the function is found. 
 
-While SGD is not guaranteed and, frequently doesn't, find global optimums it is very effective at finding 
-local minima for complex functions which are not convex. This makes it an invaluable tool for 
+If $f(x)$ is convex, then gradient descent is guaranteed to find an optimal solution. If $f(x)$ is not convex, 
+the gradient descent will converge to a local minimum. Although in the non-convex case, gradient descent 
+is not guaranteed, and frequently won't, find the global minimum, it is useful for finding 
+minima of functions which are cannot be handled by typical solvers.  This makes it an invaluable tool for 
 optimizing functions which don't admit exact optimization techniques such as those used in 
 linear programs and quadratic programs.
 
@@ -159,28 +163,68 @@ before the relevant result is found. This problem can be formulated as a mixed i
 of the following form
 \begin{align*}
 \min_{w,z}\quad &1^Tz\\
-s.t. \quad Aw - \epsilon z &\leq 0\\
+s.t. \quad Aw - \epsilon z &\leq \gamma\\
 		w &\geq 0\\
 		z &\in \{0,1\}\\
 \end{align*}
 
-\section{Problem}
 
-As mentioned above, we can formulate our numerical MAX-CSP as a MILP, which can then be 
-feed into an off the shelf solver. While this is simple solution (at least programming-wise), 
-it has a major issue, namely that depending on the input, the solver time could be exponential in 
-the number of constraints. For our motivating example, we would ideally feed in many labeled queries, 
+\section{Baseline Solutions}
+
+As metioned above we can formulate our problem as a mixed integer linear program 
+with binary constraints. In addition, to the mixed integer formulation, we also create an LP
+relaxation of the problem as an approximation of the MILP, namely, 
+
+\begin{align*}
+\min_{w,z}\quad &1^Tz\\
+s.t. \quad Aw - \epsilon z &\leq \gamma\\
+		w &\geq 0\\
+		0 \leq z &\leq 1\\
+\end{align*}
+
+The rationale behind this is that the LP relaxation can be solved efficiently and provide a 
+deterministic approximation of the MILP. Although the solution could be arbitrarily bad,
+we find that the LP typically finds a reasonable solution in much less time 
+relative to the MILP. 
+
+\section{Problem with Baseline Solutions}
+
+While modeling the MAX-CSP problem as a MILP is simple solution (at least programming-wise), 
+it has a few major issues, namely that depending on the input, the solver time could be exponential in 
+the number of constraints. Moreover, even commercial solvers can struggle with large problem sizes, 
+either taking large amounts of time to produce any feasible solution or having prohibitive memory requirements.
+For our motivating example, we would ideally feed in many labeled queries, 
 each producing tens of constraints, hence exponential runtime in the number of constraints greatly 
-reduces the usefulness of the solution. Moreover, because we have continuous and binary variables, 
-the problem doesn't easily admit an LP relaxation approximation.
+reduces the usefulness of the solution. 
+
 
 \section{Our Solution}
 
-To remedy problem of runtime we propose a new solution based on 
-stochstic gradient descent. 
+To remedy problem of runtime we propose a new solution based on gradient descent. The high level
+idea of the solution is simple, begin with a random weight feasible vector $w$ and then perform 
+gradient descent until the local minima is found. More specifically we have, 
+
+$$
+f(x) = \text{HardSigmoid}(Aw - \gamma)
+$$
+Where, 
+$$
+x\in R, \quad \text{HardSigmoid}(x) = \begin{cases} 0 \text{ if } x \leq 0\\ 1 \text{ if } x \geq 1\\ x \text{ otherwise}\end{cases}
+$$
+
+For gradient updates we start with $\eta = .5$ which decays exponentially every 25 gradient updates. We do a total 
+of 100 gradient updates and then back track to find the $w$ (i.e. the one that satisfies as many constraints as 
+possible). We repeat this process starting with random $w$ until we reach a preset time limit.
 
 
 \section{Experiments}
+
+We ran our experiments on a server with an AMD Ryzen Threadripper 2950X (16c/32t) processor with 
+64GB of RAM. Our MAX-CSP instances are generated from real world datasets, with the number of constraints 
+ranging from \red{TODO : max num const} to \red{TODO : max num const}. For the baseline solutions we 
+leverage Gurobi, which takes advantage of all threads available. 
+
+
 \section{Discussion}
 \section{Conclusions}
 
