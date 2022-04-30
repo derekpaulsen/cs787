@@ -2,6 +2,7 @@
 \usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{booktabs}
 \usepackage{dsfont}
 \usepackage{paralist}
 \usepackage{epstopdf}
@@ -32,7 +33,6 @@
 
 \urlstyle{rm}
 
-\setlength\parindent{0pt} % Removes all indentation from paragraphs
 
 
 % TO SHOW SOLUTIONS, include following (else comment out):
@@ -59,7 +59,7 @@
 }
 
 
-\title{Stochastic Gradient Descent for Numerical MAX-CSP} % Title
+\title{Gradient Descent for Numerical MAX-CSP} % Title
 \author{
 Derek Paulsen \\
 } 
@@ -75,11 +75,30 @@ Derek Paulsen \\
 
 \section{Abstract}
 \section{Introduction}
+
 % TODO
+
+Many real world problems can be modeled as constraint 
+satisfaction problems. The problems range from logic puzzles 
+like sudoku to tuning search engines. Briefly, a constraint satisfaction 
+problem is simply the task of finding a valid assignment of variables 
+which satisfy as set of constraints. Many classic problems in theoretical computer 
+science fit this model, such as the NP-Complete 3-SAT and circuit SAT problems. In this paper 
+look variant of CSP, called numerical MAX-CSP. In this variant each variable is a real number
+and all of the constraints are linear inequalities, the goal then is to satisfy as 
+many linear inequalities as possible. 
+
+The rest of this paper is then structured as follows. First, we give background on the problem 
+and the basis for our solution. Next we motivate solving this problem by tying it to 
+tuning a keyword search engine with labeled data. We then move on to describe a baseline 
+solution by modeling the problem as mixed integer linear program and discuss the issues with 
+this solution. Next, we present our algorithm and compare it to the baseline solution. Finally, 
+we discuss the experimental results and give directions for future work.
+
 \section{Background}
 
 
-\subsubsection{Constraint satisfaction problems}
+\subsection{Constraint satisfaction problems}
 
 Constraint satisfaction problems (CSPs) encompasses many different problems. Formally a 
 constraint satisfaction problem (CSP) is defined as a triple $\langle X, D, C \rangle$, where 
@@ -89,8 +108,7 @@ constraint satisfaction problem (CSP) is defined as a triple $\langle X, D, C \r
 	D &= \{D_1, ..., D_n\} \text{ the domains of each respective variable}\\
 	C &= \{C_1, ..., C_m\} \text{ the set of constraints}\\
 \end{align*}
-
-A classic example of CSP, is the 3-SAT problem. In this case
+A classic example of a CSP, is the 3-SAT problem. In this case
 the boolean variables that appear in at least one clause would be $X$. The domain for 
 each variable would be $D_i = \{true, false\}$ and the constraints would all be 
 three variable disjunctive clauses. The 3-SAT problem of course known to be NP-Complete.
@@ -100,7 +118,7 @@ satisfy as may constraints as possible, additionally the domains are the variabl
 are numerical (e.g. the real numbers). 
 
 While this problem has certainly been considered before, we were only able to find one previous 
-work that directly address this issue. 
+work that directly addresses this issue. 
 %TODO Add citation here 
 
 In this paper the authors propose a solution to numerical MAX-CSP. In particular where 
@@ -112,7 +130,7 @@ program,
 
 \begin{align*}
 \min_{x,z}\quad &1^Tz\\
-s.t. \quad Ax - \epsilon z &\leq 0\\
+s.t. \quad Ax - \epsilon z &\leq b\\
 		w &\in \mathds{R}^n\\
 		z &\in \{0,1\}^m\\
 \end{align*}
@@ -121,9 +139,7 @@ Where $\epsilon$ is some large number. The general problem of mixed integer line
 of course NP-Hard in general (by reduction to 0-1 integer programming which is NP-Complete). Hence 
 this numerical MAX-CSP is likely not to admit an efficient solution. 
 
-\subsubsection{Gradient Descent}
-
-%TODO rewrite this 
+\subsection{Gradient Descent}
 
 Gradient descent is an optimization technique which has gained much 
 attention in recent years due to the stochastic variant being used in training neural networks for machine learning 
@@ -168,6 +184,20 @@ s.t. \quad Aw - \epsilon z &\leq \gamma\\
 		z &\in \{0,1\}\\
 \end{align*}
 
+Where each row, $a$, of $A$ comes corresponds to 
+$$
+a = (d_{i,y} - d_{i,x}) \odot q_i  \quad i \in \{1,...n\} \quad x,y \in \{1,...,k\}, l_{i,x} = relevant, l_{i,y} = irrelevant
+$$
+
+That is, the pairwise difference between the components of a matching and non-matching document, multiplied by the 
+relevant query. We note that with this setup, 
+$$
+a^Tw < 0 \implies (q\odot w)^Td_{i,x} > (q\odot w)^Td_{i,y}
+$$
+That is, the relevant document will be scored higher than the non-relevant document for the query. Solving this 
+MILP then corresponds to minimizing the number of irrelevant documents that need to be 
+examined in order to find the relevant document for each query. 
+
 
 \section{Baseline Solutions}
 
@@ -207,28 +237,37 @@ gradient descent until the local minima is found. More specifically we have,
 $$
 f(x) = \text{HardSigmoid}(Aw - \gamma)
 $$
-Where, 
+Where $ \gamma = -1$ and, 
 $$
 x\in R, \quad \text{HardSigmoid}(x) = \begin{cases} 0 \text{ if } x \leq 0\\ 1 \text{ if } x \geq 1\\ x \text{ otherwise}\end{cases}
 $$
 
 For gradient updates we start with $\eta = .5$ which decays exponentially every 25 gradient updates. We do a total 
-of 100 gradient updates and then back track to find the $w$ (i.e. the one that satisfies as many constraints as 
-possible). We repeat this process starting with random $w$ until we reach a preset time limit.
-
+of 500 gradient updates and then back track to find the best $w$ (i.e. the one that satisfies as many constraints as 
+possible). We then repeat this process starting with random $w$ until we reach a preset time limit.
 
 \section{Experiments}
 
 We ran our experiments on a server with an AMD Ryzen Threadripper 2950X (16c/32t) processor with 
 64GB of RAM. Our MAX-CSP instances are generated from real world datasets, with the number of constraints 
-ranging from \red{TODO : max num const} to \red{TODO : max num const}. For the baseline solutions we 
-leverage Gurobi, which takes advantage of all threads available. 
+ranging from 7769 to 5994778. For the baseline solutions we 
+leverage Gurobi, a commercial solver with an academic license. We choose gurobi because it is consistently 
+one of the top performing available solvers \cite{benchmark}.
+
+\begin{tabular}{|l|r|r|r|}
+\toprule
+Dataset &  \# of Constraints &  \# of Columns &  \% Non-Zero \\
+\midrule
+         $D_0$ &                   7769 &                 14 &         66.24 \\
+         $D_1$ &                  19350 &                 18 &         61.46 \\
+         $D_2$ &                 111974 &                 18 &         72.83 \\
+         $D_3$ &                 196213 &                 30 &         51.62 \\
+         $D_4$ &                3711208 &                124 &         25.09 \\
+         $D_5$ &                5994778 &                 22 &         68.58 \\
+\bottomrule
+\end{tabular}
 
 
-\section{Discussion}
-\section{Conclusions}
-
-
-%\bibliographystyle{abbrvnat}
-%\bibliography{references}
+\bibliographystyle{abbrvnat}
+\bibliography{references}
 \end{document}
