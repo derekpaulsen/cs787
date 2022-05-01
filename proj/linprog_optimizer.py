@@ -93,20 +93,6 @@ class LinProgOptimizer(Optimizer):
             ],
             index=constraints.index
         )
-        # the costs for violating a given constraint
-        constraint_costs = constraint_indicator_vars
-        
-        # the cost for a given matching tuple in a query
-        sub_query_index = pd.MultiIndex.from_frame(constraints.index.to_frame(index=None).iloc[:, 0:2].drop_duplicates())
-        sub_query_cost_vars = pd.Series(
-                [pulp.LpVariable(f'y_{i}_{j}', lowBound=0) for i,j in sub_query_index],
-                index = sub_query_index
-        ).sort_index()
-        # the total cost for a query
-        query_cost_vars = pd.Series(
-                [pulp.LpVariable(f'y_{i}', lowBound=0) for i in constraints.index.get_level_values(0).unique()],
-                index = constraints.index.get_level_values(0).unique()
-        )
         
         problem = pulp.LpProblem('boosting_weights', pulp.LpMinimize)
 
@@ -117,19 +103,11 @@ class LinProgOptimizer(Optimizer):
             # a_i'x - z_i <= -1
             # remove coeffecients = 0 
             const = const[const != 0]
-            problem += const.mul(boost_vars[const.index]).sum() - 10000 * constraint_indicator_vars.at[idx] <= -1.0
+            problem += const.mul(boost_vars[const.index]).sum() - 1000 * constraint_indicator_vars.at[idx] <= -1.0
         
-        # add query costs
-        for i, query_cost in query_cost_vars.items():
-            query_cost = query_cost_vars[i]
-            # add constriants to compute the sub query costs
-            for j, sub_query_cost in sub_query_cost_vars.loc[i].items():
-                problem += constraint_costs.loc[(i,j,)].sum() - sub_query_cost <= 0
-            
-            problem += sub_query_cost_vars.loc[i].sum() - query_cost <= 0.0
 
         # add objective function
-        problem += query_cost_vars.sum()
+        problem += constraint_indicator_vars.sum()
         self._results['setup_time'] = timer.get_total()
 
         log.info('starting solver')

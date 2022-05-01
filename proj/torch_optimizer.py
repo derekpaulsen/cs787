@@ -48,7 +48,7 @@ class BoostModel(nn.Module):
 
 class TorchOptimizer(Optimizer):
 
-    def __init__(self, iters=100, step_interval=25, timeout=Optimizer.TIMEOUT):
+    def __init__(self, iters=500, step_interval=25, timeout=Optimizer.TIMEOUT):
         self._timeout = timeout
         self._iters = iters
         # number iterations per round (gradient updates)
@@ -120,8 +120,8 @@ class TorchOptimizer(Optimizer):
                 optimizer.step()
 
             lr_decay.step()
-            p = torch.sum(pred).cpu().detach().numpy()
-            cv = torch.count_nonzero(pred > -1.0).cpu().detach().numpy()
+            #p = torch.sum(pred).cpu().detach().numpy()
+            cv = torch.count_nonzero(pred >= 0).cpu().detach().numpy()
             #log.debug(f'epoch {i} : sum = {p}, total > 0 = {cv}')
             weights[i] = model.weights
             cvs[i] = cv

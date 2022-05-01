@@ -12,12 +12,7 @@ from utils import get_logger
 log = get_logger(__name__)
 
 DATA_DIR = Path('./data')
-#datasets = list(DATA_DIR.glob('*.parquet'))
-datasets = [
-        './data/Music.parquet', 
-        './data/electronics.parquet', 
-        './data/home.parquet', 
-]
+datasets = list(DATA_DIR.glob('*.parquet'))
 argp = ArgumentParser()
 
 argp.add_argument('--method', required=True, choices=['torch', 'MILP', 'LP'])
@@ -59,7 +54,7 @@ def main(args):
         raise ValueError(args.k)
 
     with open(args.out, 'a') as ofs:
-        for ds in datasets:
+        for ds in datasets[:1]:
             opt = get_optimizer(args.method)
             res = run(opt, ds, args.k)
             ofs.write(json.dumps(res)) 

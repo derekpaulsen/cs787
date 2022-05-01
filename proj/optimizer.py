@@ -17,7 +17,10 @@ class Optimizer(ABC):
     
     @staticmethod
     def create_results(constraints, weights, method_name , time_series):
+        # we can always scale values to make the margin as wide as we want
         violated = constraints.mul(weights).sum(axis=1).ge(0)
+        # correct for float inprecision 
+        time_series['obj_val'] = np.maximum(violated.sum(), time_series['obj_val'].values)
         hist = violated.groupby(level=0).sum().value_counts()
         weights.index = [str(x) for x in weights.index]
         return {
@@ -31,7 +34,7 @@ class Optimizer(ABC):
 
     @staticmethod
     def read_constraints(file):
-        constraints = pd.read_parquet(file)
+        constraints = pd.read_parquet(file).astype(np.float32)
         # begins as (id2, matching tuple, id1)
         constraints.index = pd.MultiIndex.from_tuples(list(map(eval, constraints.index)))
         constraints.columns = pd.MultiIndex.from_tuples(list(map(eval, constraints.columns)))
@@ -63,4 +66,4 @@ class Optimizer(ABC):
     @staticmethod
     def post_process_boost_map(boost_map):
         boost_map = boost_map.where(boost_map > 0).dropna()
-        return boost_map / boost_map.min()
+        return boost_map
