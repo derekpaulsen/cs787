@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{4}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -8,5 +8,23 @@
 \bibitem[ben()]{benchmark}
 Decision tree for optimization software.
 \newblock URL \url{http://plato.asu.edu/bench.html}.
+
+\bibitem[wik(2022)]{wiki_CSP}
+Constraint satisfaction problem, Feb 2022.
+\newblock URL
+  \url{https://en.wikipedia.org/wiki/Constraint_satisfaction_problem}.
+
+\bibitem[Karp(1972)]{karp_1972}
+R.~M. Karp.
+\newblock Reducibility among combinatorial problems.
+\newblock \emph{Complexity of Computer Computations}, page 85–103, 1972.
+\newblock \doi{10.1007/978-1-4684-2001-2_9}.
+
+\bibitem[Normand et~al.(2009)Normand, Goldsztejn, Christie, and
+  Benhamou]{num_max_csp_paper}
+J.-M. Normand, A.~Goldsztejn, M.~Christie, and F.~Benhamou.
+\newblock A branch and bound algorithm for numerical max-csp.
+\newblock \emph{Constraints}, 15\penalty0 (2):\penalty0 213–237, 2009.
+\newblock \doi{10.1007/s10601-009-9084-1}.
 
 \end{thebibliography}

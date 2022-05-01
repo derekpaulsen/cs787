@@ -76,7 +76,7 @@ Derek Paulsen \\
 \section{Abstract}
 \section{Introduction}
 
-% TODO
+% TODO clean up
 
 Many real world problems can be modeled as constraint 
 satisfaction problems. The problems range from logic puzzles 
@@ -95,14 +95,16 @@ solution by modeling the problem as mixed integer linear program and discuss the
 this solution. Next, we present our algorithm and compare it to the baseline solution. Finally, 
 we discuss the experimental results and give directions for future work.
 
-\section{Background}
+\section{Preliminaries}
 
+In this section we will give an overview of constraint satisfaction problems,
+and the specific flavor that we are attempting to tackle in this paper. We then 
+give a brief overview gradient descent which is the basis of our proposed solution.
 
 \subsection{Constraint satisfaction problems}
 
 Constraint satisfaction problems (CSPs) encompasses many different problems. Formally a 
-constraint satisfaction problem (CSP) is defined as a triple $\langle X, D, C \rangle$, where 
-% XXX this is from wikipedia https://en.wikipedia.org/wiki/Constraint_satisfaction_problem
+constraint satisfaction problem (CSP) is defined as a triple $\langle X, D, C \rangle$ \cite{wiki_CSP}, where 
 \begin{align*}
 	X &= \{X_1, ..., X_n\} \text{ the set of variables}\\
 	D &= \{D_1, ..., D_n\} \text{ the domains of each respective variable}\\
@@ -111,22 +113,20 @@ constraint satisfaction problem (CSP) is defined as a triple $\langle X, D, C \r
 A classic example of a CSP, is the 3-SAT problem. In this case
 the boolean variables that appear in at least one clause would be $X$. The domain for 
 each variable would be $D_i = \{true, false\}$ and the constraints would all be 
-three variable disjunctive clauses. The 3-SAT problem of course known to be NP-Complete.
+three variable disjunctive clauses. 
 In this paper we focus on a subset of CSPs called Numerical MAX-CSP. 
 In typical a CSP all constraints must be satisfied, however in MAX-CSP the goal is simply to 
 satisfy as may constraints as possible, additionally the domains are the variables 
 are numerical (e.g. the real numbers). 
 
 While this problem has certainly been considered before, we were only able to find one previous 
-work that directly addresses this issue. 
-%TODO Add citation here 
-
-In this paper the authors propose a solution to numerical MAX-CSP. In particular where 
+work that directly addresses this issue \cite{num_max_csp_paper}.
+In this paper the authors propose a exact solution to numerical MAX-CSP. In particular where 
 $D_i = \mathds{R}$ and each constraint $C_j = a_j^Tx \leq b_j, a_j \in \mathds{R}^m, b_j \in \mathds{R}$. 
 That is, given a set of linear inequalities, satisfy as many as possible. In the paper the authors 
-propose a specific algorithm for this problem based on branch and bound techniques. Unfortunately, 
-this algorithm is worst case exponential time. In fact, this problem is easy to formulate as a mixed integer 
-program,
+propose a specific algorithm for this problem based on branch and bound techniques. While the algorithm 
+does produce optimal solutions, the algorithm is worst case exponential time.
+In fact, this problem is readily to formulated as a mixed integer linear program (MILP),
 
 \begin{align*}
 \min_{x,z}\quad &1^Tz\\
@@ -136,8 +136,8 @@ s.t. \quad Ax - \epsilon z &\leq b\\
 \end{align*}
 
 Where $\epsilon$ is some large number. The general problem of mixed integer linear programming is 
-of course NP-Hard in general (by reduction to 0-1 integer programming which is NP-Complete). Hence 
-this numerical MAX-CSP is likely not to admit an efficient solution. 
+NP-Hard in general (by reduction to 0-1 integer programming which is NP-Complete \cite{karp_1972}). Hence 
+numerical MAX-CSP is likely not to admit an efficient solution. 
 
 \subsection{Gradient Descent}
 
@@ -165,7 +165,8 @@ tuning the weights for full search engines.
 
 Full text search engines are used in a plethora of applications. These search engines (such as Apache Lucene)
 are built for efficient retrieval of top-k documents based on a TF/IDF based scoring metric which is dot 
-product between two sparse vectors $q^Td = score$[[1]][1][[2]][2][[3]][3]. While this default scoring gives decent results out of the box, 
+product between two sparse vectors $q^Td = score$\cite{lucene_history} \cite{WAND_paper} \cite{block_max_WAND_paper}.
+While this default scoring gives decent results out of the box, 
 it is frequently augmented by re-weighting the query $q$, with some weight vector $w$
 changing to scoring to be $(q\odot w)^Td = score$. This allows for boosting of certain terms or fields
 to improve the quality of search results while not changing the underlying search algorithm. 
@@ -176,7 +177,7 @@ of these query vectors $q_i$ we are given a set of $k$ retrieved document vector
 $l \in \{relevant, irrelevant\}$.
 We wish to find a weight vector $w$ that minimizes the number of irrelevant documents that are examined 
 before the relevant result is found. This problem can be formulated as a mixed integer linear program (MILP)
-of the following form
+as above but with fixed $\gamma < 0$ instead of $b$, in particular,
 \begin{align*}
 \min_{w,z}\quad &1^Tz\\
 s.t. \quad Aw - \epsilon z &\leq \gamma\\
@@ -203,15 +204,7 @@ examined in order to find the relevant document for each query.
 
 As metioned above we can formulate our problem as a mixed integer linear program 
 with binary constraints. In addition, to the mixed integer formulation, we also create an LP
-relaxation of the problem as an approximation of the MILP, namely, 
-
-\begin{align*}
-\min_{w,z}\quad &1^Tz\\
-s.t. \quad Aw - \epsilon z &\leq \gamma\\
-		w &\geq 0\\
-		0 \leq z &\leq 1\\
-\end{align*}
-
+relaxation of the problem as an approximation of the MILP.
 The rationale behind this is that the LP relaxation can be solved efficiently and provide a 
 deterministic approximation of the MILP. Although the solution could be arbitrarily bad,
 we find that the LP typically finds a reasonable solution in much less time 
@@ -235,11 +228,11 @@ idea of the solution is simple, begin with a random weight feasible vector $w$ a
 gradient descent until the local minima is found. More specifically we have, 
 
 $$
-f(x) = \text{HardSigmoid}(Aw - \gamma)
+f(w) = \text{HardTanh}(Aw - \gamma)
 $$
 Where $ \gamma = -1$ and, 
 $$
-x\in R, \quad \text{HardSigmoid}(x) = \begin{cases} 0 \text{ if } x \leq 0\\ 1 \text{ if } x \geq 1\\ x \text{ otherwise}\end{cases}
+x\in R, \quad \text{HardTanh}(x) = \begin{cases} -1 \text{ if } x \leq -1\\ 1 \text{ if } x \geq 1\\ x \text{ otherwise}\end{cases}
 $$
 
 For gradient updates we start with $\eta = .5$ which decays exponentially every 25 gradient updates. We do a total 
@@ -266,6 +259,10 @@ Dataset &  \# of Constraints &  \# of Columns &  \% Non-Zero \\
          $D_5$ &                5994778 &                 22 &         68.58 \\
 \bottomrule
 \end{tabular}
+
+
+\section{Discussion}
+\section{Future Work}
 
 
 \bibliographystyle{abbrvnat}
