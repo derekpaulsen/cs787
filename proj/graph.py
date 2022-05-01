@@ -10,7 +10,7 @@ DATA_DIR = Path('./exp_res/')
 # json data
 MILP = DATA_DIR / 'MILP.json'
 LP = DATA_DIR / 'LP.json'
-TORCH = DATA_DIR / 'torch_fixed.json'
+TORCH = DATA_DIR / 'torch.json'
 argp = ArgumentParser()
 argp.add_argument('--show_graph', action='store_true')
 
@@ -50,6 +50,10 @@ def print_stats(ts, ds):
 def graph(milp, torch, show):
     print(milp.index)
     for ds in milp.index:
+        if ds not in torch.index:
+            print(f'SKIPPING {ds}')
+            continue
+
         ts = pd.concat([
             milp.at[ds, 'time_series'],
             torch.at[ds, 'time_series']
