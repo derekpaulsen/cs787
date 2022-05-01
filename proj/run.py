@@ -54,7 +54,7 @@ def main(args):
         raise ValueError(args.k)
 
     with open(args.out, 'a') as ofs:
-        for ds in datasets[1:]:
+        for ds in datasets[:1]:
             opt = get_optimizer(args.method)
             res = run(opt, ds, args.k)
             ofs.write(json.dumps(res)) 
