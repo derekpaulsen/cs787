@@ -3,51 +3,48 @@ Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: ./paper.aux
 The style file: abbrvnat.bst
 Database file #1: references.bib
-Warning--I didn't find a database entry for "lucene_history"
-Warning--I didn't find a database entry for "WAND_paper"
-Warning--I didn't find a database entry for "block_max_WAND_paper"
 Warning--to sort, need author or key in wiki_CSP
 Warning--to sort, need author or key in benchmark
 Warning--empty year in benchmark
-You've used 4 entries,
+You've used 7 entries,
             2773 wiz_defined-function locations,
-            624 strings with 5234 characters,
-and the built_in function-call counts, 1588 in all, are:
-= -- 151
-> -- 49
-< -- 2
-+ -- 19
-- -- 15
-* -- 113
-:= -- 202
-add.period$ -- 12
-call.type$ -- 4
-change.case$ -- 17
-chr.to.int$ -- 4
-cite$ -- 13
-duplicate$ -- 88
-empty$ -- 155
-format.name$ -- 17
-if$ -- 359
+            640 strings with 5980 characters,
+and the built_in function-call counts, 3134 in all, are:
+= -- 291
+> -- 157
+< -- 4
++ -- 55
+- -- 48
+* -- 231
+:= -- 440
+add.period$ -- 24
+call.type$ -- 7
+change.case$ -- 37
+chr.to.int$ -- 7
+cite$ -- 19
+duplicate$ -- 163
+empty$ -- 257
+format.name$ -- 55
+if$ -- 689
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 2
-newline$ -- 28
-num.names$ -- 8
-pop$ -- 47
+missing$ -- 5
+newline$ -- 46
+num.names$ -- 20
+pop$ -- 85
 preamble$ -- 1
-purify$ -- 13
+purify$ -- 30
 quote$ -- 0
-skip$ -- 80
+skip$ -- 149
 stack$ -- 0
-substring$ -- 53
-swap$ -- 22
-text.length$ -- 1
+substring$ -- 73
+swap$ -- 40
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 44
+type$ -- 77
 warning$ -- 3
-while$ -- 8
+while$ -- 18
 width$ -- 0
-write$ -- 56
-(There were 6 warnings)
+write$ -- 99
+(There were 3 warnings)

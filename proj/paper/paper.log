@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.2.9)  30 APR 2022 19:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.2.9)  1 MAY 2022 22:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -711,23 +711,16 @@ LaTeX Font Info:    Try loading font information for U+dsrom on input line 125.
 File: Udsrom.fd 1995/08/01 v0.1 Double stroke roman font definitions
 ) [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 168.
-
-
-Package natbib Warning: Citation `lucene_history' on page 2 undefined on input 
-line 168.
-
-
-Package natbib Warning: Citation `WAND_paper' on page 2 undefined on input line
- 168.
-
-
-Package natbib Warning: Citation `block_max_WAND_paper' on page 2 undefined on 
-input line 168.
-
-[2] (./paper.bbl [3]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2]
+<./time_series.png, id=82, 867.24pt x 578.16pt>
+File: ./time_series.png Graphic file (type png)
+<use ./time_series.png>
+Package pdftex.def Info: ./time_series.png  used on input line 265.
+(pdftex.def)             Requested size: 452.9679pt x 301.97705pt.
+ (./paper.bbl [3]
+Missing character: There is no â in font ptmr7t!
+Missing character: There is no € in font ptmr7t!
+Missing character: There is no “ in font ptmr7t!
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
@@ -735,25 +728,22 @@ Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
 )
-
-Package natbib Warning: There were undefined citations.
-
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 270.
-[4]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 270.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 276.
+ [4 <./time_series.png>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 276.
  (./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 270.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 270.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 276.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 276.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: EB9830CE383EB43E38A5F2D7AA21F50C;636.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 270.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 276.
  ) 
 Here is how much of TeX's memory you used:
- 9809 strings out of 494847
- 145079 string characters out of 6179081
- 247758 words of memory out of 5000000
- 12940 multiletter control sequences out of 15000+600000
- 20630 words of font info for 48 fonts, out of 8000000 for 9000
+ 9826 strings out of 494847
+ 145431 string characters out of 6179081
+ 247927 words of memory out of 5000000
+ 12952 multiletter control sequences out of 15000+600000
+ 19004 words of font info for 46 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
  42i,10n,43p,322b,425s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
@@ -766,10 +756,10 @@ sfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/doublest
 roke/dsrom10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pf
 b></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (4 pages, 116540 bytes).
+Output written on paper.pdf (4 pages, 171666 bytes).
 PDF statistics:
- 132 PDF objects out of 1000 (max. 8388607)
- 114 compressed objects within 2 object streams
- 22 named destinations out of 1000 (max. 500000)
- 97 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 143 PDF objects out of 1000 (max. 8388607)
+ 123 compressed objects within 2 object streams
+ 26 named destinations out of 1000 (max. 500000)
+ 102 words of extra memory for PDF output out of 10000 (max. 10000000)
 
