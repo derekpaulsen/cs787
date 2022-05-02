@@ -1,4 +1,4 @@
-\begin{thebibliography}{7}
+\begin{thebibliography}{8}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -41,6 +41,11 @@ R.~M. Karp.
 \newblock Reducibility among combinatorial problems.
 \newblock \emph{Complexity of Computer Computations}, page 85–103, 1972.
 \newblock \doi{10.1007/978-1-4684-2001-2_9}.
+
+\bibitem[Kingma and Ba(2014)]{ADAM_paper}
+D.~P. Kingma and J.~Ba.
+\newblock Adam: A method for stochastic optimization, 2014.
+\newblock URL \url{https://arxiv.org/abs/1412.6980}.
 
 \bibitem[Normand et~al.(2009)Normand, Goldsztejn, Christie, and
   Benhamou]{num_max_csp_paper}

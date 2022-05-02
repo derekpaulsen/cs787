@@ -1,5 +1,8 @@
 \documentclass[a4paper]{article}
 \usepackage{geometry}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{booktabs}
@@ -12,8 +15,6 @@
 \usepackage{multicol}
 \usepackage[hidelinks]{hyperref}
 \usepackage{fancyvrb}
-\usepackage{algorithm}
-\usepackage{algorithmic}
 \usepackage{float}
 \usepackage{paralist}
 \usepackage[svgname]{xcolor}
@@ -199,76 +200,168 @@ That is, the relevant document will be scored higher than the non-relevant docum
 MILP then corresponds to minimizing the number of irrelevant documents that need to be 
 examined in order to find the relevant document for each query. 
 
+\section{Baseline Solution}
 
-\section{Baseline Solutions}
-
-As metioned above we can formulate our problem as a mixed integer linear program 
-with binary constraints. In addition, to the mixed integer formulation, we also create an LP
-relaxation of the problem as an approximation of the MILP.
-The rationale behind this is that the LP relaxation can be solved efficiently and provide a 
-deterministic approximation of the MILP. Although the solution could be arbitrarily bad,
-we find that the LP typically finds a reasonable solution in much less time 
-relative to the MILP. 
-
-\section{Problem with Baseline Solutions}
-
-While modeling the MAX-CSP problem as a MILP is simple solution (at least programming-wise), 
-it has a few major issues, namely that depending on the input, the solver time could be exponential in 
-the number of constraints. Moreover, even commercial solvers can struggle with large problem sizes, 
-either taking large amounts of time to produce any feasible solution or having prohibitive memory requirements.
-For our motivating example, we would ideally feed in many labeled queries, 
-each producing tens of constraints, hence exponential runtime in the number of constraints greatly 
-reduces the usefulness of the solution. 
-
+As motioned above we can formulate our problem as an  MILP with binary
+constraints. This MILP can then be feed into any supported off the shelf solver
+to produce an exact optimal answer.  This solution is appealing because,
+assuming that the solver is correct, it will give an optimal solution, however
+it suffers from a few major drawbacks.  First and foremast, depending on the
+input, the solver time could be exponential in the number of constraints.
+Moreover we found that even commercial solvers can struggle with large problem
+sizes, either taking large amounts of time to produce any feasible solution or
+having prohibitive memory requirements.  For our motivating use case, we would
+ideally feed in many labeled queries, each producing tens of constraints, hence
+exponential runtime in the number of constraints greatly reduces the usefulness
+of the solution. 
 
 \section{Our Solution}
 
-To remedy problem of runtime we propose a new solution based on gradient descent. The high level
-idea of the solution is simple, begin with a random weight feasible vector $w$ and then perform 
-gradient descent until the local minima is found. More specifically we have, 
+To remedy problem of runtime we propose a new solution based on gradient
+descent. The high level idea of the solution is simple, begin with a random
+weight feasible vector $w$ and then perform gradient descent until the local
+minima is found. More specifically we minimize the following function, 
 
 $$
-f(w) = \text{HardTanh}(Aw - \gamma)
-$$
-Where $ \gamma = -1$ and, 
-$$
-x\in R, \quad \text{HardTanh}(x) = \begin{cases} -1 \text{ if } x \leq -1\\ 1 \text{ if } x \geq 1\\ x \text{ otherwise}\end{cases}
+f(w) = \text{HardTanh}(Aw - \gamma)^T\overrightarrow{1}
 $$
 
-For gradient updates we start with $\eta = .5$ which decays exponentially every 25 gradient updates. We do a total 
-of 500 gradient updates and then back track to find the best $w$ (i.e. the one that satisfies as many constraints as 
-possible). We then repeat this process starting with random $w$ until we reach a preset time limit.
+$$
+\text{Where }  \gamma = -1 \text{ and for } x\in R,  \text{HardTanh}(x) = \begin{cases} -1 \text{ if } x \leq -1\\ 1 \text{ if } x \geq 1\\ x \text{ otherwise}\end{cases}
+$$
 
+\algrenewcommand\textproc{}
+\algrenewcommand{\algorithmiccomment}[1]{\hfill// #1}
+
+\begin{algorithm}[H]
+\caption{OptimizeGD($f$, $T$)}
+\textbf{Input : } The function $f$ to optimize, a time limit $T$
+\textbf{Output : } A local minima $w^*$
+\begin{algorithmic}[1]
+	\State $w^* \gets \overrightarrow{0}$ 
+	\While{current time $ < T$}
+		\State $w \gets w \sim \mathds{U}_{[.1,1.1]}^n$ \Comment{Initialize $w$ to a uniform random vector}
+		\For{$i =  1,...20$}
+			\For{$j =  1,...25$}
+				\State $w \gets w - \text{ADAM}(\nabla f(w))$
+			\EndFor
+			\If{ $f(w) < f(w^*)$}
+				\State $w^* \gets w$
+			\EndIf
+		\EndFor
+	\EndWhile
+	\\\Return $w^*$
+\end{algorithmic}
+\end{algorithm}
+
+We use the ADAM optimizer \cite{ADAM_paper} because we emprically found it to perform well,
+while giving minimal overhead. 
+%TODO add pseduo code?
 \section{Experiments}
 
 We ran our experiments on a server with an AMD Ryzen Threadripper 2950X (16c/32t) processor with 
 64GB of RAM. Our MAX-CSP instances are generated from real world datasets, with the number of constraints 
-ranging from 7769 to 5994778. For the baseline solutions we 
+ranging from 7.7K to 6.0M. For the baseline solutions we 
 leverage Gurobi, a commercial solver with an academic license. We choose gurobi because it is consistently 
-one of the top performing available solvers \cite{benchmark}.
-
+one of the top performing available solvers \cite{benchmark}. Both solutions where given a timeout of 2700 seconds 
+(corresponding to 24 hours of CPU time).
+\begin{table}[ht!]
+\caption{Dataset statistics}
 \begin{tabular}{|l|r|r|r|}
 \toprule
 Dataset &  \# of Constraints &  \# of Columns &  \% Non-Zero \\
 \midrule
-         $D_0$ &                   7769 &                 14 &         66.24 \\
-         $D_1$ &                  19350 &                 18 &         61.46 \\
-         $D_2$ &                 111974 &                 18 &         72.83 \\
-         $D_3$ &                 196213 &                 30 &         51.62 \\
-         $D_4$ &                3711208 &                124 &         25.09 \\
-         $D_5$ &                5994778 &                 22 &         68.58 \\
+         $D_0$ &                   7.7K &                 14 &         66.24 \\
+         $D_1$ &                  19.3K &                 18 &         61.46 \\
+         $D_2$ &                 111.9K &                 18 &         72.83 \\
+         $D_3$ &                 196.2K &                 30 &         51.62 \\
+         $D_4$ &                3.7M    &                124 &         25.09 \\
+         $D_5$ &                6.0M    &                 22 &         68.58 \\
 \bottomrule
 \end{tabular}
+\end{table}
 
 
-\begin{figure}
+\begin{figure}[ht!]
+	\caption{Comparison of MILP vs. Gradient Descent (GD)}
 	\includegraphics[width=\textwidth]{./time_series.png}
 \end{figure}
 
 
 
 \section{Discussion}
+
+In this section we will discuss the experimental results. There are
+two major points. We first discuss the quality of solutions produced. 
+Next, we discuss scalabilty of solutions.
+
+\subsection{Quality of Solutions}
+
+Much to our surprise, the quality of solutions produced by gradient descent
+(GD) was very similar if not better than the MILP solution. We attribute this
+to the fact that only one dataset was solved to optimality ($D_2$), in fact, we
+let $D_0$ run for over 12 hours and MILP still hadn't found an optimal
+solution. This was rather suprising because, $D_0$ has less an order of
+magnitude fewer constraints than $D_2$. This underlines up a key trade off
+between the solutions, namely, quality of solutions vs. runtime predictability.
+While the MILP solution will produce optimal solutions given enough time, it is
+very hard to predict how long it will take to produce an optimal solution. On
+the otherhand, there are no guarantees that can be made about GD in terms of
+the quality of solutions but its runtime is very predictable, scaling roughly
+linearly with the number of constraints times the number of columns. 
+
+\subsection{Scalability}
+
+This then brings us to our second point which is the scalability of the 
+solutions. To begin, from $D_4$ and $D_5$, we can clearly see that 
+GD has superior scaling properties when compared to MILP in terms of 
+runtime. MILP timed out on both datasets before even begining to refine the 
+solutions produced. We attribute this again to the vastly different complexity of the 
+two solutions. While GD has linear complexity in the number of constraints, 
+MILP has best case polynomial complexity in the number of constraints.  For small 
+problems this not an issue, but as the problem size increases MILP quickly becomes
+impractical for even approximating the optimal solution. 
+
 \section{Future Work}
+
+We identify multiple directions for future work, which fall into 
+two categories, optimization techniques, and problem applications. 
+
+\subsection{Optimization Techniques}
+
+In this paper we have only taken a small look at the possible 
+optimization techniques that could be applied. The most obvious 
+variation that could tried is to do stochastic gradient descent. This 
+variation could have two major potential benefits. First, it can 
+decrease both runtime and memory requirements of the solution further by no longer requiring the 
+entire dataset be processed on each gradient update. Second, the stochastic 
+version may be able to find better solutions as it is much more likely that it 
+could escape worse local minima, instead of relying mostly on having a good starting point.
+
+
+\subsection{Problem Applications}
+
+We restricted our problem setting to numerical MAX-CSPs with linear
+constraints, however in principle there is no reason why this technique could
+not be applied to arbitrary constraints. In particular, non-convex constraints
+would potentially be solved by applying similar techniques, which current
+solvers are not able to handle in an capacity. We believe that it is likely
+that modifying the optimzation procedure, such as using stochastic gradient
+descent, will likely be required to provide good approximations of such
+functions.
+
+\section{Conclusion}
+
+In this work we have taken brief look at a particular kind of CSP, namely, 
+numerical MAX-CSP's. We motivated this problem with a real world use case for 
+tuning full text search engines. We then proposed a solution based on gradient 
+descent and gave preliminary evidence to show that it has some key advantages 
+over the baseline MILP based solution of the problem, especially for large problem 
+sizes where commercial solvers are too slow to practical. We believe that our solution 
+shows promise for finding approximate solutions to problems which were not previously tractable
+with traditional MILP based solutions. Future work should continue to explore the 
+possible variations and possibly apply similar techniques to related problems. 
+
 
 
 \bibliographystyle{abbrvnat}

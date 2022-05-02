@@ -6,45 +6,45 @@ Database file #1: references.bib
 Warning--to sort, need author or key in wiki_CSP
 Warning--to sort, need author or key in benchmark
 Warning--empty year in benchmark
-You've used 7 entries,
+You've used 8 entries,
             2773 wiz_defined-function locations,
-            640 strings with 5980 characters,
-and the built_in function-call counts, 3134 in all, are:
-= -- 291
-> -- 157
-< -- 4
-+ -- 55
-- -- 48
-* -- 231
-:= -- 440
-add.period$ -- 24
-call.type$ -- 7
-change.case$ -- 37
-chr.to.int$ -- 7
-cite$ -- 19
-duplicate$ -- 163
-empty$ -- 257
-format.name$ -- 55
-if$ -- 689
+            648 strings with 6139 characters,
+and the built_in function-call counts, 3496 in all, are:
+= -- 323
+> -- 178
+< -- 5
++ -- 62
+- -- 54
+* -- 254
+:= -- 494
+add.period$ -- 27
+call.type$ -- 8
+change.case$ -- 42
+chr.to.int$ -- 8
+cite$ -- 21
+duplicate$ -- 178
+empty$ -- 289
+format.name$ -- 64
+if$ -- 767
 int.to.chr$ -- 1
 int.to.str$ -- 1
 missing$ -- 5
-newline$ -- 46
-num.names$ -- 20
-pop$ -- 85
+newline$ -- 51
+num.names$ -- 24
+pop$ -- 98
 preamble$ -- 1
-purify$ -- 30
+purify$ -- 34
 quote$ -- 0
-skip$ -- 149
+skip$ -- 166
 stack$ -- 0
-substring$ -- 73
-swap$ -- 40
+substring$ -- 75
+swap$ -- 41
 text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 77
+type$ -- 88
 warning$ -- 3
-while$ -- 18
+while$ -- 21
 width$ -- 0
-write$ -- 99
+write$ -- 111
 (There were 3 warnings)

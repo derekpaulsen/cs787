@@ -68,7 +68,8 @@ def iter_time_series(milp, torch):
         idx = ts['MILP'].last_valid_index()
         ts['MILP'].loc[:idx] = ts['MILP'].loc[:idx].fillna(method='ffill')
         ts['torch']= ts['torch'].fillna(method='ffill')
-
+        
+        ts = ts.rename(columns={'torch' : 'GD'})
         yield name, ts
 
 
@@ -89,11 +90,22 @@ def graph_six(milp, torch):
     
     for ax, ts_data, i in zip(axes.flatten(), time_series, range(len(time_series))):
         name, ts = ts_data
-        ts.plot(ax=ax)
+        ts.plot(ax=ax, logx=False)
         ax.set_title(f'$D_{i}$')
         ax.set_xlabel('Time (seconds)')
         ax.set_ylabel('Percent of Constraints Violated')
         ax.legend()
+        text = "Time to First Solution"
+        for c in ts.columns:
+            u = ts[c].drop_duplicates()
+            ax.scatter(u.index, u.values)
+            # first soln
+            x = u.first_valid_index()
+            text += f"\n{c} = {x} seconds"
+
+        ax.annotate(text, (.5, .5), xycoords='axes fraction')
+            
+            
     
     fig.tight_layout()
     fig.savefig('./paper/time_series.png')
