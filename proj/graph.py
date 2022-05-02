@@ -4,6 +4,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from argparse import ArgumentParser
+from utils import NAME_TO_ID
 
 
 DATA_DIR = Path('./exp_res/')
@@ -28,7 +29,10 @@ def process_time_series(row):
 
 def read_data(f):
     with open(f) as ifs:
-        df = pd.DataFrame([json.loads(x) for x in ifs if len(x) > 1]).set_index('dataset')
+        df = pd.DataFrame([json.loads(x) for x in ifs if len(x) > 1])
+
+    df['dataset_id'] = df['dataset'].apply(lambda x : NAME_TO_ID.get(x))
+    df = df.loc[df['dataset_id'].notnull()].set_index('dataset_id')
 
     method_name = df['method_name'].iloc[0]
     df['time_series'] = [process_time_series(x[1]).rename(method_name) for x in df.iterrows()]
@@ -47,21 +51,22 @@ def print_stats(ts, ds):
     print(f'time for torch to reach best value: {ts.torch.idxmin()}')
     print(ts)
 
+
 def graph(milp, torch, show):
     print(milp.index)
-    for ds in milp.index:
-        if ds not in torch.index:
-            print(f'SKIPPING {ds}')
+    for name, i in NAME_TO_ID.items():
+        if i not in torch.index or i not in milp.index:
+            print(f'SKIPPING {name}')
             continue
 
         ts = pd.concat([
-            milp.at[ds, 'time_series'],
-            torch.at[ds, 'time_series']
+            milp.at[i, 'time_series'],
+            torch.at[i, 'time_series']
         ], axis=1).fillna(method='ffill').sort_index()
-        print_stats(ts, ds)
+        print_stats(ts, name)
         if show:
             ax = ts.plot()
-            ax.set_title(ds)
+            ax.set_title(name)
             ax.set_ylim(bottom=0.0)
             ax.legend()
             plt.show()

@@ -1,23 +1,11 @@
 import pandas as pd
 from pathlib import Path
+from utils import NAME_TO_ID
 
 files = Path('./data/').glob('*.parquet')
 
 #'Walmart-Amazon' 
-
-NAME_TO_ID = dict(
-    zip(['Abt-Buy',
-    'Amazon-Google', 
-    'DBLP-GoogleScholar', 
-    'uwhealth', 
-    'electronics', 
-    'Music'],
-
-    range(10))
-)
-
 print(NAME_TO_ID)
-
 
 def make_row(f):
     df = pd.read_parquet(f)

@@ -2,6 +2,17 @@ import sys
 import logging
 import time
 
+NAME_TO_ID = dict(
+    zip(['Abt-Buy',
+    'Amazon-Google', 
+    'DBLP-GoogleScholar', 
+    'uwhealth', 
+    'electronics', 
+    'Music'],
+
+    range(10))
+)
+
 logging.basicConfig(
         stream=sys.stderr,
         format='[%(filename)s:%(lineno)s - %(funcName)s() ] %(asctime)-15s : %(message)s',
