@@ -18,6 +18,7 @@ LP = DATA_DIR / 'LP.json'
 TORCH = DATA_DIR / 'torch.json'
 argp = ArgumentParser()
 argp.add_argument('--show_graph', action='store_true')
+argp.add_argument('--graph3', action='store_true')
 
 DF = None
 
@@ -112,6 +113,35 @@ def graph_six(milp, torch):
 
     plt.show()
 
+def graph_three(milp, torch):
+    time_series = list(iter_time_series(milp, torch))[::2]
+    fig, axes = plt.subplots(1, 3, figsize=(22, 5))
+    sizes = ['7.7k', '111.9k', '3.7M']
+
+    
+    for ax, ts_data, i, sz in zip(axes.flatten(), time_series, range(0, 10, 2), sizes):
+        name, ts = ts_data
+        ts.plot(ax=ax, logx=False)
+        ax.set_title(f'$D_{i}$')
+        ax.set_xlabel('Time (seconds)')
+        ax.set_ylabel('Percent of Constraints Violated')
+        ax.legend()
+        text = "Time to First Solution"
+        for c in ts.columns:
+            u = ts[c].drop_duplicates()
+            ax.scatter(u.index, u.values)
+            # first soln
+            x = u.first_valid_index()
+            text += f"\n{c} = {x} seconds"
+        text += f'\n\nNumber of Constraints = {sz}'
+        ax.annotate(text, (.5, .5), xycoords='axes fraction')
+            
+            
+    
+    fig.tight_layout()
+    fig.savefig('/home/derek/slides_fig.png')
+
+    plt.show()
         
 
 def main(args):
@@ -120,8 +150,11 @@ def main(args):
     if args.show_graph:
         graph_six(milp, torch)
     else:
-        graph(milp, torch, args.show_graph)
-
+        pass
+        #graph(milp, torch, args.show_graph)
+    
+    if args.graph3:
+        graph_three(milp, torch)
 
 if __name__ == '__main__':
     main(argp.parse_args())

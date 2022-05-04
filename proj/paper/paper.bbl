@@ -1,4 +1,4 @@
-\begin{thebibliography}{8}
+\begin{thebibliography}{13}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -13,6 +13,15 @@ Decision tree for optimization software.
 Constraint satisfaction problem, Feb 2022.
 \newblock URL
   \url{https://en.wikipedia.org/wiki/Constraint_satisfaction_problem}.
+
+\bibitem[Bengio et~al.(2021)Bengio, Lodi, and
+  Prouvost]{bengio_lodi_prouvost_2021}
+Y.~Bengio, A.~Lodi, and A.~Prouvost.
+\newblock Machine learning for combinatorial optimization: A methodological
+  tour d’horizon.
+\newblock \emph{European Journal of Operational Research}, 290\penalty0
+  (2):\penalty0 405–421, 2021.
+\newblock \doi{10.1016/j.ejor.2020.07.063}.
 
 \bibitem[Broder et~al.(2003)Broder, Carmel, Herscovici, Soffer, and
   Zien]{WAND_paper}
@@ -42,10 +51,36 @@ R.~M. Karp.
 \newblock \emph{Complexity of Computer Computations}, page 85–103, 1972.
 \newblock \doi{10.1007/978-1-4684-2001-2_9}.
 
+\bibitem[Khalil et~al.(2016)Khalil, Bodic, Song, Nemhauser, and
+  Dilkina]{strong_branching_paper}
+E.~B. Khalil, P.~L. Bodic, L.~Song, G.~Nemhauser, and B.~Dilkina.
+\newblock Learning to branch in mixed integer programming.
+\newblock In \emph{Proceedings of the Thirtieth AAAI Conference on Artificial
+  Intelligence}, AAAI'16, page 724–731. AAAI Press, 2016.
+
 \bibitem[Kingma and Ba(2014)]{ADAM_paper}
 D.~P. Kingma and J.~Ba.
 \newblock Adam: A method for stochastic optimization, 2014.
 \newblock URL \url{https://arxiv.org/abs/1412.6980}.
+
+\bibitem[Liberto et~al.(2016)Liberto, Kadioglu, Leo, and
+  Malitsky]{liberto_kadioglu_leo_malitsky_2016}
+G.~D. Liberto, S.~Kadioglu, K.~Leo, and Y.~Malitsky.
+\newblock Dash: Dynamic approach for switching heuristics.
+\newblock \emph{European Journal of Operational Research}, 248\penalty0
+  (3):\penalty0 943–953, 2016.
+\newblock \doi{10.1016/j.ejor.2015.08.018}.
+
+\bibitem[Makarychev and Makarychev(2017)]{approx_for_csp_paper}
+K.~Makarychev and Y.~Makarychev.
+\newblock {Approximation Algorithms for CSPs}.
+\newblock In A.~Krokhin and S.~Zivny, editors, \emph{The Constraint
+  Satisfaction Problem: Complexity and Approximability}, volume~7 of
+  \emph{Dagstuhl Follow-Ups}, pages 287--325. Schloss Dagstuhl--Leibniz-Zentrum
+  fuer Informatik, Dagstuhl, Germany, 2017.
+\newblock ISBN 978-3-95977-003-3.
+\newblock \doi{10.4230/DFU.Vol7.15301.287}.
+\newblock URL \url{http://drops.dagstuhl.de/opus/volltexte/2017/6968}.
 
 \bibitem[Normand et~al.(2009)Normand, Goldsztejn, Christie, and
   Benhamou]{num_max_csp_paper}
@@ -53,5 +88,20 @@ J.-M. Normand, A.~Goldsztejn, M.~Christie, and F.~Benhamou.
 \newblock A branch and bound algorithm for numerical max-csp.
 \newblock \emph{Constraints}, 15\penalty0 (2):\penalty0 213–237, 2009.
 \newblock \doi{10.1007/s10601-009-9084-1}.
+
+\bibitem[Paszke et~al.(2019)Paszke, Gross, Massa, Lerer, Bradbury, Chanan,
+  Killeen, Lin, Gimelshein, Antiga, Desmaison, Kopf, Yang, DeVito, Raison,
+  Tejani, Chilamkurthy, Steiner, Fang, Bai, and Chintala]{pytorch}
+A.~Paszke, S.~Gross, F.~Massa, A.~Lerer, J.~Bradbury, G.~Chanan, T.~Killeen,
+  Z.~Lin, N.~Gimelshein, L.~Antiga, A.~Desmaison, A.~Kopf, E.~Yang, Z.~DeVito,
+  M.~Raison, A.~Tejani, S.~Chilamkurthy, B.~Steiner, L.~Fang, J.~Bai, and
+  S.~Chintala.
+\newblock Pytorch: An imperative style, high-performance deep learning library.
+\newblock In H.~Wallach, H.~Larochelle, A.~Beygelzimer, F.~d\textquotesingle
+  Alch\'{e}-Buc, E.~Fox, and R.~Garnett, editors, \emph{Advances in Neural
+  Information Processing Systems 32}, pages 8024--8035. Curran Associates,
+  Inc., 2019.
+\newblock URL
+  \url{http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library.pdf}.
 
 \end{thebibliography}
