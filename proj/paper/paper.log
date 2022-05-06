@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.2.9)  6 MAY 2022 10:07
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.2.9)  6 MAY 2022 10:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -727,12 +727,12 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <10> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 262.
 
 [3]
-<./time_series.png, id=118, 867.24pt x 578.16pt>
+<./time_series.png, id=117, 867.24pt x 578.16pt>
 File: ./time_series.png Graphic file (type png)
 <use ./time_series.png>
-Package pdftex.def Info: ./time_series.png  used on input line 322.
+Package pdftex.def Info: ./time_series.png  used on input line 323.
 (pdftex.def)             Requested size: 452.9679pt x 301.97705pt.
- [4 <./time_series.png>] (./paper.bbl [5]
+ [4 <./time_series.png>] [5] (./paper.bbl
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no ™ in font ptmr7t!
@@ -760,24 +760,24 @@ LaTeX Font Info:    Try loading font information for TS1+ptm on input line 100.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 ))
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 408.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 409.
  [6]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 408.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 409.
  (./paper.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 408.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 408.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 409.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 409.
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 376527DFA47C78A4436BFADC39650B60;886.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 408.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 409.
  ) 
 Here is how much of TeX's memory you used:
- 10270 strings out of 494847
- 152432 string characters out of 6179081
- 255670 words of memory out of 5000000
- 13372 multiletter control sequences out of 15000+600000
- 22529 words of font info for 51 fonts, out of 8000000 for 9000
+ 10276 strings out of 494847
+ 152494 string characters out of 6179081
+ 254670 words of memory out of 5000000
+ 13375 multiletter control sequences out of 15000+600000
+ 25384 words of font info for 56 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
- 42i,16n,43p,322b,425s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,16n,43p,322b,409s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist
@@ -789,10 +789,10 @@ sfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
 rom10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr
 /share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/
 texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on paper.pdf (6 pages, 210425 bytes).
+Output written on paper.pdf (6 pages, 210689 bytes).
 PDF statistics:
- 196 PDF objects out of 1000 (max. 8388607)
- 173 compressed objects within 2 object streams
- 40 named destinations out of 1000 (max. 500000)
+ 198 PDF objects out of 1000 (max. 8388607)
+ 175 compressed objects within 2 object streams
+ 41 named destinations out of 1000 (max. 500000)
  134 words of extra memory for PDF output out of 10000 (max. 10000000)
 
