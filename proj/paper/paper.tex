@@ -80,7 +80,7 @@ variables which satisfy a set of constraints. Many classic problems in
 theoretical computer science fit this model, such as the 3-SAT and circuit SAT
 problems. As such, large amounts of work have been
 devoted to studying CSPs and how to solve them, yielding many exact and
-approximation algorithms.  In this paper we examine a lesser studied variant of
+approximation algorithms \cite{approx_for_csp_paper}. In this paper we examine a lesser studied variant of
 CSP, called numerical MAX-CSPs. In this variant each variable is a real number
 and all of the constraints are linear inequalities, the goal then is to satisfy
 as many linear inequalities as possible. We find that while it is less
@@ -109,15 +109,15 @@ Gradient descent is an optimization technique which has gained much attention
 in recent years due to  its use in training neural
 networks for machine learning tasks such as computer vision and speech
 recognition. Despite the focus on machine learning, gradient descent is a
-general purpose optimization procedure, capable of optimizing arbitrary
+general purpose optimization procedure capable of optimizing arbitrary
 differentiable functions. Many variations have been proposed in recent years,
 however each technique uses the same core idea. Given a function $f$ to minimize and
 current point $x$, compute the gradient $\nabla(f(x))$
-and update $x$ taking a step in a direction of $-\eta \nabla(f(x))$. Repeat
+and update $x$ by taking a step in a direction of $-\eta \nabla(f(x))$. Repeat
 this process until the minimum of the function is found. 
 
-If $f(x)$ is convex, then gradient descent is guaranteed to find an optimal
-solution (given that $\eta$ is step to an appropriate constant). If $f(x)$ is not convex, the gradient descent will converge to a
+If $f(x)$ is convex, then gradient descent is guaranteed to find the global minimum of the function
+(given that $\eta$ is set to an appropriate constant). If $f(x)$ is not convex, then gradient descent will converge to a
 local minimum. Although in the non-convex case, gradient descent is not
 guaranteed, and frequently won't, find the global minimum, it is still useful for
 approximating the global minimum of functions which are cannot be handled by solvers.
@@ -171,7 +171,7 @@ used by many MILP solvers. These improvements typically aim to provide better
 branching heuristics, such as strong branching
 \cite{strong_branching_paper}. More recent work has examined machine learning
 for better branching heuristics \cite{bengio_lodi_prouvost_2021}
-\cite{liberto_kadioglu_leo_malitsky_2016}, either to approximate the strong
+\cite{liberto_kadioglu_leo_malitsky_2016}, either to approximate strong
 branching using machine learning (to reduce the computation cost) or to learn
  completely new branching heuristics which will reduce the number of nodes 
  explored to find an optimal solution.
@@ -182,7 +182,7 @@ Numerical MAX-CSPs have a wide variety to applications from debugging
 infeasible linear programs to machine learning classification, however we are
 interested in one particular problem, which is tuning the weights for
 full text search engines.  Full text search engines are the backbone of 
-many data management and web applications and ergo are a ubiquitous in 
+many data management and web applications and ergo are ubiquitous in 
 everyday life. These search engines (such as Apache Lucene) are built for
 efficient retrieval of top-k documents based on a TF/IDF based scoring metric
 which is dot product between two sparse vectors $q^Td =
@@ -245,7 +245,7 @@ feasible weight vector $w$ and then perform gradient descent until the local
 minima is found. More specifically we minimize the following function, 
 
 $$
-f(w) = \langle \text{HardTanh}(Aw - \gamma), \overrightarrow{1}\rangle 
+f(w) = \langle \text{HardTanh}(Aw), \overrightarrow{1}\rangle 
 $$
 
 $$
@@ -295,18 +295,23 @@ commercial solver with an academic license. We choose Gurobi because it is
 consistently one of the top performing solvers \cite{benchmark} with an
 academic or free license. Both solutions where given a timeout of 2700 seconds,
 corresponding to 24 hours of CPU time with 32 threads.
-
 \begin{table}[ht!]
+	\centering
 \caption{Dataset statistics}
 \begin{tabular}{|l|r|r|r|}
 \toprule
 Dataset &  \# of Constraints &  \# of Columns &  \% Non-Zero \\
 \midrule
          $D_0$ &                   7.7K &                 14 &         66.24 \\
+		 \hline
          $D_1$ &                  19.3K &                 18 &         61.46 \\
+		 \hline
          $D_2$ &                 111.9K &                 18 &         72.83 \\
+		 \hline
          $D_3$ &                 196.2K &                 30 &         51.62 \\
+		 \hline
          $D_4$ &                3.7M    &                124 &         25.09 \\
+		 \hline
          $D_5$ &                6.0M    &                 22 &         68.58 \\
 \bottomrule
 \end{tabular}
@@ -367,7 +372,7 @@ In this paper we have only taken a small look at the possible optimization
 techniques that could be applied. The most obvious variation that could experimented with
 is stochastic gradient descent. This variation has the potential for two major
 benefits. First, it can decrease both runtime and memory requirements
-of the solution further by no longer requiring the entire dataset be processed
+of the solution by no longer requiring the entire dataset be processed
 on each gradient update. Second, the stochastic version may be able to find
 better solutions as it is much more likely that it could escape worse local
 minima, instead of relying mostly on having a good starting point.
